@@ -23,8 +23,9 @@ from typing import cast
 STARTING_ASTEROID_COUNT = 5
 SCALE = 0.5
 OFFSCREEN_SPACE = 0
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+# SCREEN_WIDTH = 800
+# SCREEN_HEIGHT = 600
+SCREEN_WIDTH, SCREEN_HEIGHT = arcade.window_commands.get_display_size()
 SCREEN_TITLE = "Asteroid Smasher"
 LEFT_LIMIT = -OFFSCREEN_SPACE
 RIGHT_LIMIT = SCREEN_WIDTH + OFFSCREEN_SPACE
@@ -480,7 +481,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -526,7 +527,7 @@ class MyGame(arcade.Window):
 
         self.hit_list_sprites['Class']['Player'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
         self.hit_list_sprites['Class']['Enemy_Ship'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
-        self.hit_list_sprites['Class']['Asteroid'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
+        self.hit_list_sprites['Class']['Asteroid'] = ['Enemy_Ship', 'Player',  'Asteroidx', 'Bullet']
         self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
 
 
@@ -799,14 +800,28 @@ class MyGame(arcade.Window):
             sprite_dict={}
             for sprite in self.hit_list_sprites:
                 if sprite != enemy:
-                    sprite_dict.update({'closest_sprite':
+                    if 'closest_sprite' not in sprite_dict or \
+                        sprite_dict['closest_sprite']['distance'] > arcade.get_distance_between_sprites(sprite, enemy):
+                            sprite_dict.update({'closest_sprite':
                                             {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
                                              ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
                                                                  x2=sprite.center_x, y2=sprite.center_y)
+                                             ,'center_x':sprite.center_x, 'center_y':sprite.center_y
+                                             ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
                                              }
                                         })
-                    # ['closest_sprite'] = (sprite, arcade.get_distance_between_sprites(sprite, enemy)
-                    # sprite_dict[sprite]['center_y'] = enemy.center_x
+                        #loop through intersect object types, not seperate
+                    if 'closest_asteroid' not in sprite_dict or \
+                            (sprite_dict['closest_sprite']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)
+                                and sprite.sprite_class == 'asteroid'):
+                            sprite_dict.update({'closest_asteroid':
+                                            {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
+                                             ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
+                                                                 x2=sprite.center_x, y2=sprite.center_y)
+                                             ,'center_x':sprite.center_x, 'center_y':sprite.center_y
+                                             ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
+                                             }
+                                        })
 
     def on_update(self, x):
         """ Move everything """
