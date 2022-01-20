@@ -803,9 +803,10 @@ class MyGame(arcade.Window):
                                             {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
                                              ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
                                                                  x2=sprite.center_x, y2=sprite.center_y)
-                                             })
-                    ['closest_sprite'] = (sprite, arcade.get_distance_between_sprites(sprite, enemy)
-                    sprite_dict[sprite]['center_y'] = enemy.center_x
+                                             }
+                                        })
+                    # ['closest_sprite'] = (sprite, arcade.get_distance_between_sprites(sprite, enemy)
+                    # sprite_dict[sprite]['center_y'] = enemy.center_x
 
     def on_update(self, x):
         """ Move everything """
