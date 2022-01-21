@@ -20,7 +20,7 @@ import random
 from datetime import datetime
 from typing import cast
 
-STARTING_ASTEROID_COUNT = 5
+STARTING_ASTEROID_COUNT = 1
 SCALE = 0.5
 OFFSCREEN_SPACE = 0
 # SCREEN_WIDTH = 800
@@ -170,7 +170,7 @@ class SuperSpriteList(arcade.SpriteList):
 
     def ListSubsetSprite(self, sprite_class: str):
 
-        list_subset = SuperSpriteList()
+        list_subset = []#SuperSpriteList()
 
         for sprite in self:
             if sprite.sprite_class == sprite_class:
@@ -481,7 +481,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)#, fullscreen=True)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -772,7 +772,7 @@ class MyGame(arcade.Window):
                     * bullet_speed
 
                 bullet_sprite.center_x = enemy.center_x #+ enemy.size  # self.player_sprite.center_x
-                bullet_sprite.center_y =  enemy.top #+ 1  # self.enemy_ship_list[0].center_y + self.enemy_ship_list[0].size
+                bullet_sprite.center_y =    enemy.center_y #top #+ 1  # self.enemy_ship_list[0].center_y + self.enemy_ship_list[0].size
                 #print(f'{bullet_sprite.center_x}, {bullet_sprite.center_y}')
                 bullet_sprite.update()
 
@@ -780,6 +780,7 @@ class MyGame(arcade.Window):
 
                 arcade.play_sound(self.laser_sound)
                 enemy.last_fire = datetime.now()
+                print('enemy Fire')
 
 
     def update_enemies(self):
@@ -796,13 +797,17 @@ class MyGame(arcade.Window):
                 enemy_sprite.angle = 0
                 self.game_sprite_list.append(enemy_sprite)
 
+                #print(enemy_sprite.sprite_subclass)
+                #print('enemy.enemy_dict', enemy_sprite.enemy_dict[enemy_sprite.sprite_subclass])
+
+        sprite_dict={}
         for enemy in self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship'):
-            sprite_dict={}
-            for sprite in self.hit_list_sprites:
+            for sprite in self.game_sprite_list:
                 if sprite != enemy:
-                    if 'closest_sprite' not in sprite_dict or \
-                        sprite_dict['closest_sprite']['distance'] > arcade.get_distance_between_sprites(sprite, enemy):
-                            sprite_dict.update({'closest_sprite':
+                    if  sprite.sprite_class != 'Bullet' \
+                        and ('All' not in sprite_dict \
+                            or sprite_dict['All']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)):
+                        sprite_dict.update({'All':
                                             {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
                                              ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
                                                                  x2=sprite.center_x, y2=sprite.center_y)
@@ -811,10 +816,31 @@ class MyGame(arcade.Window):
                                              }
                                         })
                         #loop through intersect object types, not seperate
-                    if 'closest_asteroid' not in sprite_dict or \
-                            (sprite_dict['closest_sprite']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)
-                                and sprite.sprite_class == 'asteroid'):
-                            sprite_dict.update({'closest_asteroid':
+                    if ('Asteroid' not in sprite_dict or \
+                            sprite_dict['Asteroid']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)) \
+                                and sprite.sprite_class == 'Asteroid' :
+                            sprite_dict.update({'Asteroid':
+                                            {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
+                                             ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
+                                                                 x2=sprite.center_x, y2=sprite.center_y)
+                                             ,'center_x':sprite.center_x, 'center_y':sprite.center_y
+                                             ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
+                                             }
+                                        })
+                    if ('Player' not in sprite_dict or \
+                            sprite_dict['Player']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)) \
+                                and sprite.sprite_class in ('Player', 'Enemy_Ship') :
+                            sprite_dict.update({'Player':
+                                            {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
+                                             ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
+                                                                 x2=sprite.center_x, y2=sprite.center_y)
+                                             ,'center_x':sprite.center_x, 'center_y':sprite.center_y
+                                             ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
+                                             }
+                                        })
+                    if 'Random' not in sprite_dict or \
+                            random.randrange(1,10) <=3:
+                            sprite_dict.update({'Random':
                                             {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
                                              ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
                                                                  x2=sprite.center_x, y2=sprite.center_y)
@@ -823,56 +849,71 @@ class MyGame(arcade.Window):
                                              }
                                         })
 
+            # print(enemy.sprite_subclass)
+            # print('sprite_dict', sprite_dict)
+            # print('enemy.enemy_dict', enemy.enemy_dict)
+            hunt_type = enemy.enemy_dict[enemy.sprite_subclass]['Hunt_Type']
+            print(enemy.sprite_subclass, hunt_type)
+            if hunt_type in sprite_dict:
+                print(sprite_dict[hunt_type]['sprite'])
+                angle = GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y, x2=sprite_dict[hunt_type]['center_x'],
+                                            y2=sprite_dict[hunt_type]['center_y'])
+
+                # fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed'] \
+                #                  - enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed'] /
+
+                self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'], fire_speed=15, fire_frequency=3)
+
     def on_update(self, x):
         """ Move everything """
 
         self.frame_count += 1
 
+        self.update_enemies()
 
-
-        if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
-            #random_enemy_draw = True
-            #print('!RANDOM!')
-            image_list = (LIB_BASE_PATH + "enemy_A.png",
-                          LIB_BASE_PATH + "enemy_B.png",
-                          LIB_BASE_PATH + "enemy_C.png",
-                          LIB_BASE_PATH + "enemy_D.png",
-                          LIB_BASE_PATH + "enemy_E.png")
-
-            image_no = random.randrange(len(image_list))
-            enemy_sprite = EnemyShip(scale=SCALE * 1.5, image_file_name=image_list[image_no])
-            print(image_list[image_no])
-            size = max(enemy_sprite.width, enemy_sprite.height)
-
-            enemy_sprite.center_y = random.randrange(SCREEN_HEIGHT) + 0# size
-            enemy_sprite.center_x = 1 + size
-            enemy_sprite.angle = 0
-
-            #print(f'Enemy:{enemy_sprite.center_x}, {enemy_sprite.center_y}, {image_list[image_no]}, {size}')
-
-            self.game_sprite_list.append(enemy_sprite)
-            #self.enemy_sound1.play()
-
-
-#        if len(self.enemy_ship_list) > 0 and int(datetime.now().strftime("%S")) % 3 == 0 and int(datetime.now().strftime("%f")[:-3]) <=15:
-        #if len(self.enemy_ship_list) > 0:
-        for enemy in self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship'):
-            #print('FIRE', int(datetime.now().strftime("%f")[:-3]))
-
-            #CombineSpritelists(self.player_sprite_list , self.asteroid_list)
-            nearest_obj = self.game_sprite_list.get_closest_sprite_notself(sprite=enemy, tpl_sprite_class_to_ignore=['Bullet'] ) #CombineSpritelists(self.player_sprite_list , self.asteroid_list))[0] #
-            # print('?', nearest_obj[0].sprite_class, enemy.sprite_class, nearest_obj[1])
-            #print(enemy.sprite_class, nearest_obj[0].sprite_class, self.hit_list_sprites['Class'][enemy.sprite_class])
-            if nearest_obj and enemy.sprite_class in self.hit_list_sprites['Class']:
-                if nearest_obj[0].sprite_class in self.hit_list_sprites['Class'][enemy.sprite_class]:
-                #and nearest_obj.sprite_class not in self.non_hit_list_sprites  :
-
-                    #print('!', nearest_obj[0].sprite_class, enemy.sprite_class, nearest_obj[1])
-
-                    angle=GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y, x2=nearest_obj[0].center_x, y2=nearest_obj[0].center_y)
-                    enemy.angle = angle
-
-                    self.fire_enemy_laser(fire_angle=enemy.angle, fire_speed=15, fire_frequency=3)
+#         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
+#             #random_enemy_draw = True
+#             #print('!RANDOM!')
+#             image_list = (LIB_BASE_PATH + "enemy_A.png",
+#                           LIB_BASE_PATH + "enemy_B.png",
+#                           LIB_BASE_PATH + "enemy_C.png",
+#                           LIB_BASE_PATH + "enemy_D.png",
+#                           LIB_BASE_PATH + "enemy_E.png")
+#
+#             image_no = random.randrange(len(image_list))
+#             enemy_sprite = EnemyShip(scale=SCALE * 1.5, image_file_name=image_list[image_no])
+#             print(image_list[image_no])
+#             size = max(enemy_sprite.width, enemy_sprite.height)
+#
+#             enemy_sprite.center_y = random.randrange(SCREEN_HEIGHT) + 0# size
+#             enemy_sprite.center_x = 1 + size
+#             enemy_sprite.angle = 0
+#
+#             #print(f'Enemy:{enemy_sprite.center_x}, {enemy_sprite.center_y}, {image_list[image_no]}, {size}')
+#
+#             self.game_sprite_list.append(enemy_sprite)
+#             #self.enemy_sound1.play()
+#
+#
+# #        if len(self.enemy_ship_list) > 0 and int(datetime.now().strftime("%S")) % 3 == 0 and int(datetime.now().strftime("%f")[:-3]) <=15:
+#         #if len(self.enemy_ship_list) > 0:
+#         for enemy in self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship'):
+#             #print('FIRE', int(datetime.now().strftime("%f")[:-3]))
+#
+#             #CombineSpritelists(self.player_sprite_list , self.asteroid_list)
+#             nearest_obj = self.game_sprite_list.get_closest_sprite_notself(sprite=enemy, tpl_sprite_class_to_ignore=['Bullet'] ) #CombineSpritelists(self.player_sprite_list , self.asteroid_list))[0] #
+#             # print('?', nearest_obj[0].sprite_class, enemy.sprite_class, nearest_obj[1])
+#             #print(enemy.sprite_class, nearest_obj[0].sprite_class, self.hit_list_sprites['Class'][enemy.sprite_class])
+#             if nearest_obj and enemy.sprite_class in self.hit_list_sprites['Class']:
+#                 if nearest_obj[0].sprite_class in self.hit_list_sprites['Class'][enemy.sprite_class]:
+#                 #and nearest_obj.sprite_class not in self.non_hit_list_sprites  :
+#
+#                     #print('!', nearest_obj[0].sprite_class, enemy.sprite_class, nearest_obj[1])
+#
+#                     angle=GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y, x2=nearest_obj[0].center_x, y2=nearest_obj[0].center_y)
+#                     enemy.angle = angle
+#
+#                     self.fire_enemy_laser(fire_angle=enemy.angle, fire_speed=15, fire_frequency=3)
 
         if not self.game_over:
             self.game_sprite_list.update()
