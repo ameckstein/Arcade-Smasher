@@ -363,6 +363,7 @@ class EnemyShip(SuperSprite):
         self.size = 0
         self.speed = .5
         self.last_fire = datetime.now()
+        self.orientation = 1
 
         self.enemy_sound1 = LIB_BASE_PATH + "spaceEngine_000.ogg"
         self.enemy_sound2 = LIB_BASE_PATH + "spaceEngine_001.ogg"
@@ -396,7 +397,7 @@ class EnemyShip(SuperSprite):
 
         print(LIB_BASE_PATH + "enemy_C.png")
         print(self.enemy_dict[char]['Image_File'])
-        self.sprite_subclass = char
+        #self.sprite_subclass = char
         self.hunt_type = self.enemy_dict[char]['Hunt_Type']
         self.max_shoot_speed = self.enemy_dict[char]['Max_Shoot_Speed']
         self.min_shoot_speed = self.enemy_dict[char]['Min_Shoot_Speed']
@@ -428,13 +429,31 @@ class EnemyShip(SuperSprite):
 
     def update(self):
         """Move Ship Around"""
+        print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
+        #print(self.orientation)
+        if self.orientation == 1:  # left to right
+            self.change_x = self.speed
+            self.change_y = 0
+
+        elif self.orientation == 2:  # right to left
+            self.change_x = - self.speed
+            self.change_y = 0
+            print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
+
+
+        elif self.orientation == 3:  # top to bottom
+            self.change_x = 0
+            self.change_y = self.speed
+
+        else:  # bottom to top
+            self.change_x = 0
+            self.change_y = - self.speed
 
         #forward(speed: float = 1.0) Set a Sprite’s position to speed by its angle :param speed: speed factor
-        self.change_x = self.speed
-        self.change_y = 0
+
 
         self.center_x += self.change_x
-        self.center_y += 0 #self.change_y
+        self.center_y += self.change_y
 
         # If the ship goes off-screen, move it to the other side of the window
         # if self.right < 0:
@@ -452,6 +471,118 @@ class EnemyShip(SuperSprite):
 
 
         super().update()
+
+#--
+class Satellite(SuperSprite):
+    """ Sprite that represents an enemy ship. """
+
+    def __init__(self, image_file_name=str(), scale=float(), character=str() ):
+        super().__init__(image_file_name, scale=scale)
+
+        self.size = 0
+        self.speed = 0.5 + (random.randrange(0,10) * 0.1)
+        self.last_fire = datetime.now()
+        self.orientation = 1
+
+        #self.sound = arcade.Sound(file_name=self.enemy_sound1, streaming=False)
+        self.media_player = None
+        self.sprite_class = 'Satellite'
+        self.sprite_subclass = None
+
+        self.enemy_dict = {
+                                 'Jerry': {'Image_File': LIB_BASE_PATH + "Station_A.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Merry': {'Image_File': LIB_BASE_PATH + "Station_B.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Ferry': {'Image_File': LIB_BASE_PATH + "Station_C.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Kerry': {'Image_File': LIB_BASE_PATH + "Station_A.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(34,0,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Nerry': {'Image_File': LIB_BASE_PATH + "Station_B.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(250,82,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Werry': {'Image_File': LIB_BASE_PATH + "Station_C.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(23,169,0), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                          }
+        #print(self.enemy_dict)
+
+        range_count = 0
+        print(len(self.enemy_dict))
+        if not character:
+            rand_char = random.randrange(start=1,stop=len(self.enemy_dict))
+            for char in self.enemy_dict:
+                if range_count==rand_char:
+                    self.sprite_subclass = char
+                    break
+                range_count+=1
+
+        print(LIB_BASE_PATH + "enemy_C.png")
+        self.sprite_subclass = char
+        self.texture = arcade.load_texture(file_name=self.enemy_dict[char]['Image_File'], hit_box_algorithm='Detailed')
+        if 'Sound_File' in self.enemy_dict[self.sprite_subclass] and self.enemy_dict[char]['Sound_File']:
+            self.sound = arcade.Sound(file_name=self.enemy_dict[char]['Sound_File'], streaming=False) #self.enemy_dict[char]['Sound_File']
+        self.image_offset = self.enemy_dict[char]['Image_Offset']
+        self.color = self.enemy_dict[char]['Color']
+        self.power_ups = self.enemy_dict[char]['Power_ups']
+        self.powerup_freq = self.enemy_dict[char]['Powerup_freq']
+        # print(self.enemy_dict)
+        print(self.sprite_subclass)
+
+        #self.playsound()
+
+    def playsound(self):
+        self.media_player = self.sound.play(loop=True)
+
+    def stopsound(self):
+        pass
+        #self.sound.stop(player=self.media_player)
+
+    def kill(self):
+        self.stopsound()
+
+    def fire_laser(self, angle=float()):
+        pass
+
+    def update(self):
+        """Move Ship Around"""
+        print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
+        #print(self.orientation)
+        if self.orientation == 1:  # left to right
+            self.change_x = self.speed
+            self.change_y = 0
+
+        elif self.orientation == 2:  # right to left
+            self.change_x = - self.speed
+            self.change_y = 0
+            print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
+
+
+        elif self.orientation == 3:  # top to bottom
+            self.change_x = 0
+            self.change_y = self.speed
+
+        else:  # bottom to top
+            self.change_x = 0
+            self.change_y = - self.speed
+
+        #forward(speed: float = 1.0) Set a Sprite’s position to speed by its angle :param speed: speed factor
+
+
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        # If the ship goes off-screen, move it to the other side of the window
+        # if self.right < 0:
+        #     self.left = SCREEN_WIDTH
+        #
+        # if self.left > SCREEN_WIDTH:
+        #     self.right = 0
+        #
+        # if self.bottom < 0:
+        #     self.top = SCREEN_HEIGHT
+        #
+        # if self.top > SCREEN_HEIGHT:
+        #     self.bottom = 0
+
+
+
+        super().update()
+
+
+#--
 
 
 
@@ -481,7 +612,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE) #, fullscreen=True)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -508,7 +639,9 @@ class MyGame(arcade.Window):
         self.score = 0
         self.player_sprite = None
         self.max_enemies = 1
+        self.max_satellites = 1
         self.enemy_generate_rate = 10
+        self.satellite_rate = 10
         #self.lives = 13
 
         # Sounds
@@ -787,6 +920,42 @@ class MyGame(arcade.Window):
                 enemy.last_fire = datetime.now()
                 print('enemy Fire')
 
+#satellite_rate
+    def update_satellites(self):
+
+        # random generation of enemies
+        if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Satellite')) < self.max_satellites:
+            if random.randint(1, 1000)  <= self.satellite_rate:
+                Satellite_sprite = Satellite(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
+
+                size = max(Satellite_sprite.width, Satellite_sprite.height)
+
+                Satellite_sprite.orientation = random.randrange(1,4)
+                #Satellite_sprite.orientation = 4
+                #print(f'orientation: {Satellite_sprite.orientation}, {Satellite_sprite.center_x}, {Satellite_sprite.center_y}')
+                if Satellite_sprite.orientation == 1: # left to right
+                    Satellite_sprite.center_y = random.randrange(SCREEN_HEIGHT) + 0  # size
+                    Satellite_sprite.center_x = 1 + max(Satellite_sprite.width, Satellite_sprite.height)
+
+                elif Satellite_sprite.orientation == 2: # right to left
+                    Satellite_sprite.center_y = random.randrange(1, SCREEN_HEIGHT) + 0  # size
+                    Satellite_sprite.center_x = SCREEN_WIDTH - 100 - max(Satellite_sprite.width, Satellite_sprite.height)
+                    print(f'{Satellite_sprite.center_x}, {Satellite_sprite.center_y}')
+                elif Satellite_sprite.orientation == 3: # top to bottom
+                    Satellite_sprite.center_y = max(Satellite_sprite.width, Satellite_sprite.height) + 0  # size
+                    Satellite_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(Satellite_sprite.width, Satellite_sprite.height) + SCREEN_WIDTH
+
+                else: # bottom to top
+                    Satellite_sprite.center_y = SCREEN_HEIGHT - max(Satellite_sprite.width, Satellite_sprite.height) + 0  # size
+                    Satellite_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(Satellite_sprite.width, Satellite_sprite.height) + SCREEN_WIDTH
+
+                Satellite_sprite.angle = 0
+
+                self.game_sprite_list.append(Satellite_sprite)
+
+                #print(enemy_sprite.sprite_subclass)
+                #print('enemy.enemy_dict', enemy_sprite.enemy_dict[enemy_sprite.sprite_subclass])
+
 
     def update_enemies(self):
 
@@ -797,9 +966,27 @@ class MyGame(arcade.Window):
 
                 size = max(enemy_sprite.width, enemy_sprite.height)
 
-                enemy_sprite.center_y = random.randrange(SCREEN_HEIGHT) + 0  # size
-                enemy_sprite.center_x = 1 + max(enemy_sprite.width, enemy_sprite.height)
+                enemy_sprite.orientation = random.randrange(1,4)
+                #enemy_sprite.orientation = 4
+                #print(f'orientation: {enemy_sprite.orientation}, {enemy_sprite.center_x}, {enemy_sprite.center_y}')
+                if enemy_sprite.orientation == 1: # left to right
+                    enemy_sprite.center_y = random.randrange(SCREEN_HEIGHT) + 0  # size
+                    enemy_sprite.center_x = 1 + max(enemy_sprite.width, enemy_sprite.height)
+
+                elif enemy_sprite.orientation == 2: # right to left
+                    enemy_sprite.center_y = random.randrange(1, SCREEN_HEIGHT) + 0  # size
+                    enemy_sprite.center_x = SCREEN_WIDTH - 100 - max(enemy_sprite.width, enemy_sprite.height)
+                    print(f'{enemy_sprite.center_x}, {enemy_sprite.center_y}')
+                elif enemy_sprite.orientation == 3: # top to bottom
+                    enemy_sprite.center_y = max(enemy_sprite.width, enemy_sprite.height) + 0  # size
+                    enemy_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(enemy_sprite.width, enemy_sprite.height) + SCREEN_WIDTH
+
+                else: # bottom to top
+                    enemy_sprite.center_y = SCREEN_HEIGHT - max(enemy_sprite.width, enemy_sprite.height) + 0  # size
+                    enemy_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(enemy_sprite.width, enemy_sprite.height) + SCREEN_WIDTH
+
                 enemy_sprite.angle = 0
+
                 self.game_sprite_list.append(enemy_sprite)
 
                 #print(enemy_sprite.sprite_subclass)
@@ -894,7 +1081,7 @@ class MyGame(arcade.Window):
 
                 if sprite_dict['All']['distance']  <= enemy.enemy_dict[enemy.sprite_subclass]['Preservation'] * preservation_speed_buckets:
                     hunt_type = 'All'
-                    print('Preservation!')
+                    #print('Preservation!')
 
 
                 if sprite_dict[hunt_type]['distance'] <= 100:
@@ -908,7 +1095,7 @@ class MyGame(arcade.Window):
                 if enemy_fire_frequency < enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']:
                     enemy_fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']
 
-                print(f'enemy_fire_frequency {enemy_fire_frequency}, {enemy.enemy_dict[enemy.sprite_subclass]["Min_Shoot_Speed"]}, {enemy.enemy_dict[enemy.sprite_subclass]["Max_Shoot_Speed"]}, {sprite_dict[hunt_type]["distance"]} ')
+                #print(f'enemy_fire_frequency {enemy_fire_frequency}, {enemy.enemy_dict[enemy.sprite_subclass]["Min_Shoot_Speed"]}, {enemy.enemy_dict[enemy.sprite_subclass]["Max_Shoot_Speed"]}, {sprite_dict[hunt_type]["distance"]} ')
 
 
                 self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'] + fire_adjustment_angle, fire_speed=15, fire_frequency=enemy_fire_frequency)
@@ -919,6 +1106,7 @@ class MyGame(arcade.Window):
         self.frame_count += 1
 
         self.update_enemies()
+        self.update_satellites()
 
 #         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
 #             #random_enemy_draw = True
@@ -992,7 +1180,7 @@ class MyGame(arcade.Window):
 
             #for bullet in self.game_sprite_list.ListSubsetSprite(sprite_class='Bullet'):
             for base_object in self.game_sprite_list:
-                if base_object.sprite_class in ('Bullet', 'Enemy_Ship'):
+                if base_object.sprite_class in ('Bullet', 'Enemy_Ship', 'Satellite'):
                     # Remove bullet/enemy_ship if it goes off-screen
                     size = max(base_object.width, base_object.height)
                     if base_object.center_x < 0 - size:
