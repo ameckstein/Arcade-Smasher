@@ -20,7 +20,7 @@ import random
 from datetime import datetime
 from typing import cast
 
-STARTING_ASTEROID_COUNT = 1
+STARTING_ASTEROID_COUNT = 5
 SCALE = 0.5
 OFFSCREEN_SPACE = 0
 # SCREEN_WIDTH = 800
@@ -375,12 +375,12 @@ class EnemyShip(SuperSprite):
         self.sprite_subclass = None
 
         self.enemy_dict = {
-                                 'Barry': {'Hunt_Type': 'Player', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "enemy_A.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_000.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Larry': {'Hunt_Type': 'All', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "enemy_B.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Marry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "enemy_C.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Harry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "enemy_D.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_003.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Garry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "enemy_E.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Fred': {'Hunt_Type': 'Random', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 0, 'Preservation': 0, 'Accuracy': 3, 'Image_File': LIB_BASE_PATH + "ship_sidesB.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(3, 252, 252), 'Power_ups': ['All'], 'Powerup_freq': 0.75}
+                                 'Barry': {'Hunt_Type': 'Player', 'Max_Shoot_Speed': 6, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_A.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_000.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Larry': {'Hunt_Type': 'All', 'Max_Shoot_Speed': 15, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "enemy_B.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(98,255,0), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Marry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 5, 'Preservation': 5, 'Accuracy': 6, 'Image_File': LIB_BASE_PATH + "enemy_C.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(255,0,98), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Harry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 6, 'Preservation': 6, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_D.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_003.ogg", 'Image_Offset': 0, 'Color':(255,0,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Garry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 4, 'Min_Shoot_Speed': 3, 'Intelligence': 4, 'Preservation': 4, 'Accuracy': 9, 'Image_File': LIB_BASE_PATH + "enemy_E.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(0,128,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Fred': {'Hunt_Type': 'Random', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 1, 'Intelligence': 0, 'Preservation': 0, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "ship_sidesB.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(3, 252, 252), 'Power_ups': ['All'], 'Powerup_freq': 0.75}
                           }
         #print(self.enemy_dict)
 
@@ -481,7 +481,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)#, fullscreen=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -611,6 +611,11 @@ class MyGame(arcade.Window):
 
         output = f"Asteroid Count: {self.game_sprite_list.ListLenGetSprite(sprite_class='Asteroid')}"
         arcade.draw_text(output, 10, 80, arcade.color.WHITE, 13)
+
+        if self.game_sprite_list.get_closest_sprite_notself(sprite=self.player_sprite, tpl_sprite_class_to_ignore=['Bullet']):
+            output = str(self.game_sprite_list.get_closest_sprite_notself(sprite=self.player_sprite, tpl_sprite_class_to_ignore=['Bullet'])[0].sprite_class)
+            output+= ', ' + str(self.game_sprite_list.get_closest_sprite_notself(sprite=self.player_sprite, tpl_sprite_class_to_ignore=['Bullet'])[1])
+            arcade.draw_text(output, 10, 60, arcade.color.WHITE, 13)
 
         # output = f"Velocity: {round(self.velocity[0],2)}:{round(self.velocity[1],2)} Thrust {self.player_sprite.thrust} Speed {round(self.player_sprite.speed, 2)} Angle: {round(math.radians(self.player_sprite.angle), 2)}"
         # arcade.draw_text(output, 10, 60, arcade.color.WHITE, 13)
@@ -838,9 +843,21 @@ class MyGame(arcade.Window):
                                              ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
                                              }
                                         })
-                    if 'Random' not in sprite_dict or \
-                            random.randrange(1,10) <=3:
+                    if sprite.sprite_class != 'Bullet' and\
+                            ('Random' not in sprite_dict or \
+                            random.randrange(1,10) <=3):
                             sprite_dict.update({'Random':
+                                            {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
+                                             ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
+                                                                 x2=sprite.center_x, y2=sprite.center_y)
+                                             ,'center_x':sprite.center_x, 'center_y':sprite.center_y
+                                             ,'class':sprite.sprite_class, 'subclass':sprite.sprite_subclass,
+                                             }
+                                        })
+                    if  sprite.sprite_class == 'Bullet' \
+                        and ('Bullet' not in sprite_dict \
+                            or sprite_dict['Bullet']['distance'] > arcade.get_distance_between_sprites(sprite, enemy)):
+                        sprite_dict.update({'Bullet':
                                             {'sprite':sprite, 'distance':arcade.get_distance_between_sprites(sprite, enemy)
                                              ,'Angle': GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y,
                                                                  x2=sprite.center_x, y2=sprite.center_y)
@@ -853,16 +870,48 @@ class MyGame(arcade.Window):
             # print('sprite_dict', sprite_dict)
             # print('enemy.enemy_dict', enemy.enemy_dict)
             hunt_type = enemy.enemy_dict[enemy.sprite_subclass]['Hunt_Type']
-            print(enemy.sprite_subclass, hunt_type)
+            #print(enemy.sprite_subclass, hunt_type)
             if hunt_type in sprite_dict:
-                print(sprite_dict[hunt_type]['sprite'])
-                angle = GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y, x2=sprite_dict[hunt_type]['center_x'],
-                                            y2=sprite_dict[hunt_type]['center_y'])
+                #print(sprite_dict[hunt_type]['sprite'])
+                # angle = GetAngleBtwn2Points(x1=enemy.center_x, y1=enemy.center_y, x2=sprite_dict[hunt_type]['center_x'],
+                #                             y2=sprite_dict[hunt_type]['center_y'])
 
                 # fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed'] \
                 #                  - enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed'] /
 
-                self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'], fire_speed=15, fire_frequency=3)
+                fire_adjustment_angle = 0
+                if random.randrange(1, 10) > enemy.enemy_dict[enemy.sprite_subclass]['Accuracy']:
+                    fire_adjustment_angle = random.randrange(1, 10)
+                    #print(f'Fire Angle Adjusted by {fire_adjustment_angle}')
+                #print(f'{sprite_dict[hunt_type]["class"]} Distance {sprite_dict[hunt_type]["distance"]}')
+
+                enemy_speed_diff = enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed'] - enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']
+                if not enemy_speed_diff:
+                    enemy_speed_diff = 1
+
+                enemy_speed_buckets = 800 / 10
+                preservation_speed_buckets = 300 / 10
+
+                if sprite_dict['All']['distance']  <= enemy.enemy_dict[enemy.sprite_subclass]['Preservation'] * preservation_speed_buckets:
+                    hunt_type = 'All'
+                    print('Preservation!')
+
+
+                if sprite_dict[hunt_type]['distance'] <= 100:
+                    enemy_fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed']
+                else:
+                    enemy_fire_frequency = math.floor(sprite_dict[hunt_type]['distance'] / enemy_speed_buckets)
+                    #enemy_fire_frequency = enemy_speed_buckets * enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']
+
+                if enemy_fire_frequency > enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed']:
+                    enemy_fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Max_Shoot_Speed']
+                if enemy_fire_frequency < enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']:
+                    enemy_fire_frequency = enemy.enemy_dict[enemy.sprite_subclass]['Min_Shoot_Speed']
+
+                print(f'enemy_fire_frequency {enemy_fire_frequency}, {enemy.enemy_dict[enemy.sprite_subclass]["Min_Shoot_Speed"]}, {enemy.enemy_dict[enemy.sprite_subclass]["Max_Shoot_Speed"]}, {sprite_dict[hunt_type]["distance"]} ')
+
+
+                self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'] + fire_adjustment_angle, fire_speed=15, fire_frequency=enemy_fire_frequency)
 
     def on_update(self, x):
         """ Move everything """
