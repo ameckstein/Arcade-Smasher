@@ -485,7 +485,7 @@ class Powerup(SuperSprite):
         super().__init__(image_file_name, scale=scale)
 
         self.size = 0
-        self.speed = 1.5 + (random.randrange(0,10) * 0.1)
+        self.speed = 0.5 #+ (random.randrange(0,10) * 0.1)
         self.angle = 0
 
         #self.sound = arcade.Sound(file_name=self.enemy_sound1, streaming=False)
@@ -872,6 +872,23 @@ class MyGame(arcade.Window):
         elif symbol == arcade.key.DOWN:
             self.player_sprite.thrust = 0
 
+    def draw_ship_life_list(self):
+        for life in self.ship_life_list:
+            self.ship_life_list.pop().remove_from_sprite_lists()
+
+        # Set up the little icons that represent the player lives.
+        cur_pos = 10
+        for i in range(self.lives):
+            life = SuperSprite(":resources:images/space_shooter/"
+                                 "playerLife1_orange.png",
+                                 SCALE)
+            life.center_x = cur_pos + life.width
+            life.center_y = life.height
+            cur_pos += life.width
+            self.ship_life_list.append(life)
+
+
+
     def split_asteroid(self, asteroid: AsteroidSprite):
         """ Split an asteroid into chunks. """
         x = asteroid.center_x
@@ -1186,8 +1203,16 @@ class MyGame(arcade.Window):
 
     def apply_player_powerup(self, powerup=Powerup()):
 
-        if powerup.sprite_subclass == 'Life' or 1==1:
+        if powerup.sprite_subclass == 'Lifex': # or 1==1:
             self.lives += 1
+            self.draw_ship_life_list()
+
+        if powerup.sprite_subclass == 'Shield' or 1 == 1:
+            print(f'Shield powerup! {self.player_sprite.center_x},{self.player_sprite.center_y}')
+            arcade.start_render()
+            arcade.draw_circle_outline(center_x = self.player_sprite.center_x, center_y = self.player_sprite.center_y, radius=250, color=(255,255,255))
+            arcade.start_render()
+            #arcade.draw_line(self.player_sprite.center_x, CENTER_Y, x, y, arcade.color.OLIVE, 4)
             #self.player_sprite.lives += 1
 
     def on_update(self, x):
@@ -1342,11 +1367,13 @@ class MyGame(arcade.Window):
                                 print(f'PU:{base_object.sprite_class} collision {collision_obj.sprite_class}')
                                 kill_base_obj = False
                                 kill_collision_obj = True
+                                self.apply_player_powerup(collision_obj)
 
                             if collision_obj.sprite_class == 'Player' and base_object.sprite_class=='Powerup':
                                 print(f'PU2:{base_object.sprite_class} collision {collision_obj.sprite_class}')
                                 kill_base_obj = True
                                 kill_collision_obj = False
+                                self.apply_player_powerup(collision_obj)
 
                             if (collision_obj.sprite_class == 'Player' and kill_collision_obj)\
                                     or (base_object.sprite_class == 'Player' and kill_base_obj):
