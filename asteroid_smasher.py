@@ -20,7 +20,7 @@ import random
 from datetime import datetime
 from typing import cast
 
-STARTING_ASTEROID_COUNT = 5
+STARTING_ASTEROID_COUNT = 1
 SCALE = 0.5
 OFFSCREEN_SPACE = 0
 # SCREEN_WIDTH = 800
@@ -74,6 +74,11 @@ PLAYER_THRUST = 0.01
 #       changeInY = y2 - y1
 #       return math.degrees(math.atan2(changeInY,changeInX)) #remove degrees if you want your answer in radians
 
+def get_center_screen_cordinates():
+    screen_center_x = math.floor(arcade.window_commands.get_display_size()[0] / 2)
+    screen_center_y = math.floor(arcade.window_commands.get_display_size()[1] / 2)
+
+    return (screen_center_x, screen_center_y)
 
 def GetAngleBtwn2Points(x1, y1, x2, y2):
     '''
@@ -386,7 +391,7 @@ class EnemyShip(SuperSprite):
         #print(self.enemy_dict)
 
         range_count = 0
-        print(len(self.enemy_dict))
+        #print(len(self.enemy_dict))
         if not character:
             rand_char = random.randrange(start=1,stop=len(self.enemy_dict))
             for char in self.enemy_dict:
@@ -395,8 +400,8 @@ class EnemyShip(SuperSprite):
                     break
                 range_count+=1
 
-        print(LIB_BASE_PATH + "enemy_C.png")
-        print(self.enemy_dict[char]['Image_File'])
+        # print(LIB_BASE_PATH + "enemy_C.png")
+        # print(self.enemy_dict[char]['Image_File'])
         #self.sprite_subclass = char
         self.hunt_type = self.enemy_dict[char]['Hunt_Type']
         self.max_shoot_speed = self.enemy_dict[char]['Max_Shoot_Speed']
@@ -429,7 +434,7 @@ class EnemyShip(SuperSprite):
 
     def update(self):
         """Move Ship Around"""
-        print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
+        #print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
         #print(self.orientation)
         if self.orientation == 1:  # left to right
             self.change_x = self.speed
@@ -438,7 +443,7 @@ class EnemyShip(SuperSprite):
         elif self.orientation == 2:  # right to left
             self.change_x = - self.speed
             self.change_y = 0
-            print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
+            #print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
 
 
         elif self.orientation == 3:  # top to bottom
@@ -473,6 +478,68 @@ class EnemyShip(SuperSprite):
         super().update()
 
 #--
+class Powerup(SuperSprite):
+    """ Sprite that represents an enemy ship. """
+
+    def __init__(self, image_file_name=LIB_BASE_PATH + "enemy_A.png", scale=float(), powerup_name=str() ):
+        super().__init__(image_file_name, scale=scale)
+
+        self.size = 0
+        self.speed = 1.5 + (random.randrange(0,10) * 0.1)
+        self.angle = 0
+
+        #self.sound = arcade.Sound(file_name=self.enemy_sound1, streaming=False)
+        self.media_player = None
+        self.sprite_class = 'Powerup'
+        self.sprite_subclass = None
+
+        self.powerup_dict = {
+                                 'Life': {'Image_File': LIB_BASE_PATH + "things_solver.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Shield': {'Image_File': LIB_BASE_PATH + "powerupBlue_shield.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Invincible': {'Image_File': LIB_BASE_PATH + "powerupBlue_star.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                          }
+
+        range_count = 0
+        if not powerup_name:
+            rand_char = random.randrange(start=1,stop=len(self.powerup_dict))
+            for powerup in self.powerup_dict:
+                if range_count==rand_char:
+                    self.sprite_subclass = powerup
+                    break
+                range_count+=1
+
+        self.texture = arcade.load_texture(file_name=self.powerup_dict[powerup]['Image_File'], hit_box_algorithm='Detailed')
+        if 'Sound_File' in self.powerup_dict[self.sprite_subclass] and self.powerup_dict[powerup]['Sound_File']:
+            self.sound = arcade.Sound(file_name=self.powerup_dict[powerup]['Sound_File'], streaming=False) #self.powerup_dict[powerup]['Sound_File']
+        self.image_offset = self.powerup_dict[powerup]['Image_Offset']
+        self.color = self.powerup_dict[powerup]['Color']
+        # print(self.powerup_dict)
+        # print(self.sprite_subclass)
+
+        #self.playsound()
+
+    def playsound(self):
+        self.media_player = self.sound.play(loop=True)
+
+    def stopsound(self):
+        pass
+        #self.sound.stop(player=self.media_player)
+
+    def kill(self):
+        self.stopsound()
+
+    def fire_laser(self, angle=float()):
+        pass
+
+    def update(self):
+        """Move Ship Around"""
+        #print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
+        #print(self.orientation)
+        # self.forward(speed=self.speed)
+
+        super().update()
+
+#!--
 class Satellite(SuperSprite):
     """ Sprite that represents an enemy ship. """
 
@@ -500,7 +567,7 @@ class Satellite(SuperSprite):
         #print(self.enemy_dict)
 
         range_count = 0
-        print(len(self.enemy_dict))
+        #print(len(self.enemy_dict))
         if not character:
             rand_char = random.randrange(start=1,stop=len(self.enemy_dict))
             for char in self.enemy_dict:
@@ -509,7 +576,7 @@ class Satellite(SuperSprite):
                     break
                 range_count+=1
 
-        print(LIB_BASE_PATH + "enemy_C.png")
+        #print(LIB_BASE_PATH + "enemy_C.png")
         self.sprite_subclass = char
         self.texture = arcade.load_texture(file_name=self.enemy_dict[char]['Image_File'], hit_box_algorithm='Detailed')
         if 'Sound_File' in self.enemy_dict[self.sprite_subclass] and self.enemy_dict[char]['Sound_File']:
@@ -519,7 +586,7 @@ class Satellite(SuperSprite):
         self.power_ups = self.enemy_dict[char]['Power_ups']
         self.powerup_freq = self.enemy_dict[char]['Powerup_freq']
         # print(self.enemy_dict)
-        print(self.sprite_subclass)
+        #print(self.sprite_subclass)
 
         #self.playsound()
 
@@ -538,7 +605,7 @@ class Satellite(SuperSprite):
 
     def update(self):
         """Move Ship Around"""
-        print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
+        #print(f'{self.sprite_subclass}, {self.orientation}, {self.change_x}, {self.change_y} ')
         #print(self.orientation)
         if self.orientation == 1:  # left to right
             self.change_x = self.speed
@@ -547,7 +614,7 @@ class Satellite(SuperSprite):
         elif self.orientation == 2:  # right to left
             self.change_x = - self.speed
             self.change_y = 0
-            print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
+            #print(f'orientation: Update:{self.orientation}, {self.center_x}, {self.center_y}, {SCREEN_WIDTH}, {SCREEN_HEIGHT}')
 
 
         elif self.orientation == 3:  # top to bottom
@@ -612,7 +679,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE) #, fullscreen=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -658,10 +725,10 @@ class MyGame(arcade.Window):
         self.hit_list_sprites = {'Class': {}, 'SubClass':{}, 'GUID':{}} #Dict of hit lists by type
         self.non_hit_list_sprites = {'Class':{}, 'SubClass':{}, 'GUID':{}} #Dict of hit pairs to be ignored by type
 
-        self.hit_list_sprites['Class']['Player'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
-        self.hit_list_sprites['Class']['Enemy_Ship'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
+        self.hit_list_sprites['Class']['Player'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Powerup']
+        self.hit_list_sprites['Class']['Enemy_Ship'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Powerup']
         self.hit_list_sprites['Class']['Asteroid'] = ['Enemy_Ship', 'Player',  'Asteroidx', 'Bullet']
-        self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet']
+        self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite']
 
 
 
@@ -918,7 +985,22 @@ class MyGame(arcade.Window):
 
                 arcade.play_sound(self.laser_sound)
                 enemy.last_fire = datetime.now()
-                print('enemy Fire')
+                #print('enemy Fire')
+
+    def update_powerups(self):
+ #       print(f'get_center_screen_cordinates: {get_center_screen_cordinates()}')
+
+        for powerup in self.game_sprite_list.ListSubsetSprite(sprite_class='Powerup'):
+            print(f'Powersup Speed: {powerup.speed}, {powerup.change_x}')
+            if powerup.speed <=0:
+                powerup.speed=1
+            powerup.change_y = \
+                math.cos(math.radians(powerup.angle - 90)) * powerup.speed
+            powerup.change_x = \
+                -math.sin(math.radians(powerup.angle - 90)) \
+                * powerup.speed
+
+            powerup.update()
 
 #satellite_rate
     def update_satellites(self):
@@ -952,6 +1034,8 @@ class MyGame(arcade.Window):
                 Satellite_sprite.angle = 0
 
                 self.game_sprite_list.append(Satellite_sprite)
+
+                #print(f'Satellite_sprite: {Satellite_sprite.sprite_class}, {Satellite_sprite.sprite_subclass}')
 
                 #print(enemy_sprite.sprite_subclass)
                 #print('enemy.enemy_dict', enemy_sprite.enemy_dict[enemy_sprite.sprite_subclass])
@@ -1100,13 +1184,19 @@ class MyGame(arcade.Window):
 
                 self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'] + fire_adjustment_angle, fire_speed=15, fire_frequency=enemy_fire_frequency)
 
+    def apply_player_powerup(self, powerup=Powerup()):
+
+        if powerup.sprite_subclass == 'Life' or 1==1:
+            self.lives += 1
+            #self.player_sprite.lives += 1
+
     def on_update(self, x):
         """ Move everything """
-
         self.frame_count += 1
 
         self.update_enemies()
         self.update_satellites()
+        self.update_powerups()
 
 #         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
 #             #random_enemy_draw = True
@@ -1180,7 +1270,7 @@ class MyGame(arcade.Window):
 
             #for bullet in self.game_sprite_list.ListSubsetSprite(sprite_class='Bullet'):
             for base_object in self.game_sprite_list:
-                if base_object.sprite_class in ('Bullet', 'Enemy_Ship', 'Satellite'):
+                if base_object.sprite_class in ('Bullet', 'Enemy_Ship', 'Satellite', 'Powerup'):
                     # Remove bullet/enemy_ship if it goes off-screen
                     size = max(base_object.width, base_object.height)
                     if base_object.center_x < 0 - size:
@@ -1199,11 +1289,13 @@ class MyGame(arcade.Window):
 
                     for collision_obj in collisions:
                         kill_collision_obj = True
+                        # if base_object.sprite_class != 'Asteroid':
+                        print(f'!base_object.sprite_class: {base_object.sprite_class}, collision_obj.sprite_class: {collision_obj.sprite_class}')
                         if base_object.sprite_class in self.hit_list_sprites['Class']:
                             if collision_obj.sprite_class in self.hit_list_sprites['Class'][base_object.sprite_class]:
                                 elg_collision = True
                         else:
-                                elg_collision = True
+                                elg_collision = False
 
                         if collision_obj.sprite_class == 'Player' and self.player_sprite.respawning:
                             elg_collision = False
@@ -1222,7 +1314,42 @@ class MyGame(arcade.Window):
                                 #print('!', base_object.guid, base_object.sprite_class)
                                 self.split_asteroid(cast(AsteroidSprite ,base_object))
 
-                            if collision_obj.sprite_class == 'Player' or base_object.sprite_class == 'Player':
+
+
+                            if collision_obj.sprite_class == 'Satellite' and base_object.sprite_class=='Bullet':
+                                print(f'{collision_obj.sprite_class} collision {base_object.sprite_class}\n{collision_obj.enemy_dict}')
+                                if collision_obj.powerup_freq * 100 >= random.randrange(1,100):
+                                    print('POWErUP!')
+                                    powerup_sprite = Powerup(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
+                                    powerup_sprite.center_x = collision_obj.center_x
+                                    powerup_sprite.center_y = collision_obj.center_y
+                                    powerup_sprite.angle = GetAngleBtwn2Points(x1=get_center_screen_cordinates()[0], y1=get_center_screen_cordinates()[1],
+                                                                 x2=powerup_sprite.center_x, y2=powerup_sprite.center_y) - 90 + random.randrange(-10,10)
+                                    self.game_sprite_list.append(powerup_sprite)
+
+                            if base_object.sprite_class == 'Satellite' and collision_obj.sprite_class=='Bullet':
+                                print(f'{base_object.sprite_class} collision {collision_obj.sprite_class}\n{base_object.enemy_dict} {base_object.powerup_freq * 100}')
+                                if base_object.powerup_freq * 100 >= random.randrange(1,100):
+                                    print('POWErUP!')
+                                    powerup_sprite = Powerup(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
+                                    powerup_sprite.center_x = base_object.center_x
+                                    powerup_sprite.center_y = base_object.center_y
+                                    powerup_sprite.angle = GetAngleBtwn2Points(x1=get_center_screen_cordinates()[0], y1=get_center_screen_cordinates()[1],
+                                                                 x2=powerup_sprite.center_x, y2=powerup_sprite.center_y) - 90 + random.randrange(-10,10)
+                                    self.game_sprite_list.append(powerup_sprite)
+
+                            if base_object.sprite_class == 'Player' and collision_obj.sprite_class=='Powerup':
+                                print(f'PU:{base_object.sprite_class} collision {collision_obj.sprite_class}')
+                                kill_base_obj = False
+                                kill_collision_obj = True
+
+                            if collision_obj.sprite_class == 'Player' and base_object.sprite_class=='Powerup':
+                                print(f'PU2:{base_object.sprite_class} collision {collision_obj.sprite_class}')
+                                kill_base_obj = True
+                                kill_collision_obj = False
+
+                            if (collision_obj.sprite_class == 'Player' and kill_collision_obj)\
+                                    or (base_object.sprite_class == 'Player' and kill_base_obj):
                                 #print('Player hit:',collision_obj.sprite_class, base_object.sprite_class, self.lives)
                                 if self.lives > 0:
                                     self.lives -= 1
