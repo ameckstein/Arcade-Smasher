@@ -136,6 +136,7 @@ class SuperSprite(arcade.Sprite):
         # represents what type of sprite this is. Used for differentiating sprite objects
         self.sprite_class = None
         self.sprite_subclass = None
+        self.health = 0
 
 class SuperSpriteList(arcade.SpriteList):
     """
@@ -679,7 +680,7 @@ class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=True)
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=False)
 
         # Set the working directory (where we expect to find files) to the same
         # directory this .py file is in. You can leave this out of your own
@@ -726,9 +727,10 @@ class MyGame(arcade.Window):
         self.non_hit_list_sprites = {'Class':{}, 'SubClass':{}, 'GUID':{}} #Dict of hit pairs to be ignored by type
 
         self.hit_list_sprites['Class']['Player'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Powerup']
-        self.hit_list_sprites['Class']['Enemy_Ship'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Powerup']
-        self.hit_list_sprites['Class']['Asteroid'] = ['Enemy_Ship', 'Player',  'Asteroidx', 'Bullet']
-        self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite']
+        self.hit_list_sprites['Class']['Enemy_Ship'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Powerup', 'Shield']
+        self.hit_list_sprites['Class']['Asteroid'] = ['Enemy_Ship', 'Player',  'Asteroidx', 'Bullet', 'Shield']
+        self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Shield']
+        self.hit_list_sprites['Class']['Shield'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Shield']
 
 
 
@@ -1008,7 +1010,7 @@ class MyGame(arcade.Window):
  #       print(f'get_center_screen_cordinates: {get_center_screen_cordinates()}')
 
         for powerup in self.game_sprite_list.ListSubsetSprite(sprite_class='Powerup'):
-            print(f'Powersup Speed: {powerup.speed}, {powerup.change_x}')
+            #print(f'Powersup Speed: {powerup.speed}, {powerup.change_x}')
             if powerup.speed <=0:
                 powerup.speed=1
             powerup.change_y = \
@@ -1200,6 +1202,11 @@ class MyGame(arcade.Window):
 
 
                 self.fire_enemy_laser(fire_angle=sprite_dict[hunt_type]['Angle'] + fire_adjustment_angle, fire_speed=15, fire_frequency=enemy_fire_frequency)
+    def update_player_powerups(self):
+
+        for shield in self.game_sprite_list.ListSubsetSprite(sprite_class='Shield'):
+            shield.center_x = shield.originating_source.center_x
+            shield.center_y = shield.originating_source.center_y
 
     def apply_player_powerup(self, powerup=Powerup()):
 
@@ -1209,9 +1216,22 @@ class MyGame(arcade.Window):
 
         if powerup.sprite_subclass == 'Shield' or 1 == 1:
             print(f'Shield powerup! {self.player_sprite.center_x},{self.player_sprite.center_y}')
-            arcade.start_render()
-            arcade.draw_circle_outline(center_x = self.player_sprite.center_x, center_y = self.player_sprite.center_y, radius=250, color=(255,255,255))
-            arcade.start_render()
+            #self.start_render()
+            #mycircle = arcade.draw_circle_outline(center_x = self.player_sprite.center_x, center_y = self.player_sprite.center_y, radius=250, color=(255,255,255))
+            shield_sprite = TurningSprite(LIB_BASE_PATH +"Blue_Circle.png",
+                                          SCALE)
+            shield_sprite.guid = "Shield"
+            shield_sprite.center_x = self.player_sprite.center_x
+            shield_sprite.center_y = self.player_sprite.center_y
+
+            shield_sprite.sprite_class = 'Shield'
+            shield_sprite.sprite_subclass = 'Blue'
+            shield_sprite.health = 3
+            shield_sprite.originating_source = self.player_sprite
+            self.game_sprite_list.append(shield_sprite)
+            #arcade.finish_render()
+            #arcade.run()
+            #self.on_draw()
             #arcade.draw_line(self.player_sprite.center_x, CENTER_Y, x, y, arcade.color.OLIVE, 4)
             #self.player_sprite.lives += 1
 
@@ -1222,7 +1242,7 @@ class MyGame(arcade.Window):
         self.update_enemies()
         self.update_satellites()
         self.update_powerups()
-
+        self.update_player_powerups()
 #         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
 #             #random_enemy_draw = True
 #             #print('!RANDOM!')
@@ -1314,11 +1334,27 @@ class MyGame(arcade.Window):
 
                     for collision_obj in collisions:
                         kill_collision_obj = True
+
+
+
+
+
                         # if base_object.sprite_class != 'Asteroid':
-                        print(f'!base_object.sprite_class: {base_object.sprite_class}, collision_obj.sprite_class: {collision_obj.sprite_class}')
+                        #print(f'!base_object.sprite_class: {base_object.sprite_class}, collision_obj.sprite_class: {collision_obj.sprite_class}')
                         if base_object.sprite_class in self.hit_list_sprites['Class']:
                             if collision_obj.sprite_class in self.hit_list_sprites['Class'][base_object.sprite_class]:
                                 elg_collision = True
+                                if collision_obj.originating_source == base_object.originating_source:
+                                    collision_same_base_objects = True
+                                    elg_collision = False
+                                elif collision_obj == base_object.originating_source:
+                                    collision_same_base_objects = True
+                                    elg_collision = False
+                                elif collision_obj.originating_source == base_object:
+                                    collision_same_base_objects = True
+                                    elg_collision = False
+                                else:
+                                    collision_same_base_objects = False
                         else:
                                 elg_collision = False
 
@@ -1329,7 +1365,7 @@ class MyGame(arcade.Window):
                         #print('??', base_object.sprite_class)
                         if elg_collision and base_object.originating_source != collision_obj\
                                 and collision_obj.originating_source != base_object:
-                            # print(base_object, base_object.originating_source, collision_obj, collision_obj.originating_source)
+                            print('#', elg_collision, base_object, base_object.originating_source, collision_obj, collision_obj.originating_source)
 
                             if collision_obj.sprite_class == 'Asteroid':
                                 #print('!', collision_obj.guid, collision_obj.sprite_class)
@@ -1339,10 +1375,28 @@ class MyGame(arcade.Window):
                                 #print('!', base_object.guid, base_object.sprite_class)
                                 self.split_asteroid(cast(AsteroidSprite ,base_object))
 
+                            if collision_obj.sprite_class == 'Shield' or base_object.sprite_class == 'Shield':
+                                 print(f'Collision: {collision_obj.sprite_class}, {base_object.sprite_class}, {collision_obj.originating_source}, {base_object.originating_source}, {collision_same_base_objects} ')
+
+                            if collision_obj.sprite_class == 'Shield' and not collision_same_base_objects:
+                                print('!', collision_obj.guid, collision_obj.sprite_class)
+                                collision_obj.health-=1
+                                if collision_obj.health < 1:
+                                    kill_collision_obj = True
+                                else:
+                                    kill_collision_obj = False
+
+                            if base_object.sprite_class == 'Shield' and not collision_same_base_objects:
+                                print('!', base_object.guid, base_object.sprite_class)
+                                collision_obj.health-=1
+                                if collision_obj.health < 1:
+                                    kill_base_obj = True
+                                else:
+                                    kill_base_obj = False
 
 
                             if collision_obj.sprite_class == 'Satellite' and base_object.sprite_class=='Bullet':
-                                print(f'{collision_obj.sprite_class} collision {base_object.sprite_class}\n{collision_obj.enemy_dict}')
+                                #print(f'{collision_obj.sprite_class} collision {base_object.sprite_class}\n{collision_obj.enemy_dict}')
                                 if collision_obj.powerup_freq * 100 >= random.randrange(1,100):
                                     print('POWErUP!')
                                     powerup_sprite = Powerup(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
@@ -1353,7 +1407,7 @@ class MyGame(arcade.Window):
                                     self.game_sprite_list.append(powerup_sprite)
 
                             if base_object.sprite_class == 'Satellite' and collision_obj.sprite_class=='Bullet':
-                                print(f'{base_object.sprite_class} collision {collision_obj.sprite_class}\n{base_object.enemy_dict} {base_object.powerup_freq * 100}')
+                                #print(f'{base_object.sprite_class} collision {collision_obj.sprite_class}\n{base_object.enemy_dict} {base_object.powerup_freq * 100}')
                                 if base_object.powerup_freq * 100 >= random.randrange(1,100):
                                     print('POWErUP!')
                                     powerup_sprite = Powerup(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
@@ -1364,13 +1418,13 @@ class MyGame(arcade.Window):
                                     self.game_sprite_list.append(powerup_sprite)
 
                             if base_object.sprite_class == 'Player' and collision_obj.sprite_class=='Powerup':
-                                print(f'PU:{base_object.sprite_class} collision {collision_obj.sprite_class}')
+                                #print(f'PU:{base_object.sprite_class} collision {collision_obj.sprite_class}')
                                 kill_base_obj = False
                                 kill_collision_obj = True
                                 self.apply_player_powerup(collision_obj)
 
                             if collision_obj.sprite_class == 'Player' and base_object.sprite_class=='Powerup':
-                                print(f'PU2:{base_object.sprite_class} collision {collision_obj.sprite_class}')
+                                #print(f'PU2:{base_object.sprite_class} collision {collision_obj.sprite_class}')
                                 kill_base_obj = True
                                 kill_collision_obj = False
                                 self.apply_player_powerup(collision_obj)
