@@ -121,7 +121,7 @@ class SuperSprite(arcade.Sprite):
 
     Derives from arcade.Sprite.
     """
-    def __init__(self, filename, scale):
+    def __init__(self, filename=LIB_BASE_PATH + "enemy_A.png", scale=1):
         """ Set up the space ship. """
 
         # Call the parent Sprite constructor
@@ -137,6 +137,10 @@ class SuperSprite(arcade.Sprite):
         self.sprite_class = None
         self.sprite_subclass = None
         self.health = 0
+        self.power_ups=[]
+        self.firing_on = False
+        self.last_fire = datetime.now()
+
 
 class SuperSpriteList(arcade.SpriteList):
     """
@@ -495,19 +499,21 @@ class Powerup(SuperSprite):
         self.sprite_subclass = None
 
         self.powerup_dict = {
-                                 'Life': {'Image_File': LIB_BASE_PATH + "things_solver.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Life': {'Image_File': LIB_BASE_PATH + "powerupBlue_life.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
                                  'Shield': {'Image_File': LIB_BASE_PATH + "powerupBlue_shield.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Invincible': {'Image_File': LIB_BASE_PATH + "powerupBlue_star.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 #'Invincible': {'Image_File': LIB_BASE_PATH + "powerupBlue_star.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
+                                 'Machine_Gun': {'Image_File': LIB_BASE_PATH + "powerupBlue_RapidFire.png", 'Sound_File': None, 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
                           }
 
         range_count = 0
         if not powerup_name:
-            rand_char = random.randrange(start=1,stop=len(self.powerup_dict))
+            rand_char = random.randint(a=1,b=len(self.powerup_dict))
             for powerup in self.powerup_dict:
+                range_count+=1
                 if range_count==rand_char:
                     self.sprite_subclass = powerup
+                    print(f'{rand_char}, {self.sprite_subclass}, {len(self.powerup_dict)}')
                     break
-                range_count+=1
 
         self.texture = arcade.load_texture(file_name=self.powerup_dict[powerup]['Image_File'], hit_box_algorithm='Detailed')
         if 'Sound_File' in self.powerup_dict[self.sprite_subclass] and self.powerup_dict[powerup]['Sound_File']:
@@ -732,7 +738,19 @@ class MyGame(arcade.Window):
         self.hit_list_sprites['Class']['Bullet'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Shield']
         self.hit_list_sprites['Class']['Shield'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Shield']
 
+        self.round_dict = {
+                            1: {'Astroids': [3,0,0], 'Enemy_Ship_Rate':1, 'Satellite_Rate':1, 'Powerups':[]},
+                            2: {'Astroids': [3,2,0], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            3: {'Astroids': [4,2,1], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            4: {'Astroids': [4,5,3], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            5: {'Astroids': [5,3,3], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            6: {'Astroids': [5,5,4], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            7: {'Astroids': [6,3,2], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            8: {'Astroids': [6,6,5], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                            9: {'Astroids': [7,7,5], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
+                           10: {'Astroids': [7,8,6], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
 
+        }
 
     def start_new_game(self):
         """ Set up the game and initialize the variables. """
@@ -830,29 +848,32 @@ class MyGame(arcade.Window):
         """ Called whenever a key is pressed. """
         # Shoot if the player hit the space bar and we aren't respawning.
         if not self.player_sprite.respawning and symbol == arcade.key.SPACE:
-            bullet_sprite = TurningSprite(":resources:images/space_shooter/"
-                                          "laserBlue01.png",
-                                          SCALE)
-            bullet_sprite.guid = "Bullet"
+            self.fire_bullet(firing_sprite=self.player_sprite)
+            self.player_sprite.firing_on = True
 
-            bullet_sprite.sprite_class = 'Bullet'
-            bullet_sprite.sprite_subclass = 'Player_Bullet'
-            bullet_sprite.originating_source = self.player_sprite
-
-            bullet_speed = 13
-            bullet_sprite.change_y = \
-                math.cos(math.radians(self.player_sprite.angle-90)) * bullet_speed
-            bullet_sprite.change_x = \
-                -math.sin(math.radians(self.player_sprite.angle-90)) \
-                * bullet_speed
-
-            bullet_sprite.center_x = self.player_sprite.center_x
-            bullet_sprite.center_y = self.player_sprite.center_y + 2
-            bullet_sprite.update()
-
-            self.game_sprite_list.append(bullet_sprite)
-
-            arcade.play_sound(self.laser_sound)
+            # bullet_sprite = TurningSprite(":resources:images/space_shooter/"
+            #                               "laserBlue01.png",
+            #                               SCALE)
+            # bullet_sprite.guid = "Bullet"
+            #
+            # bullet_sprite.sprite_class = 'Bullet'
+            # bullet_sprite.sprite_subclass = 'Player_Bullet'
+            # bullet_sprite.originating_source = self.player_sprite
+            #
+            # bullet_speed = 13
+            # bullet_sprite.change_y = \
+            #     math.cos(math.radians(self.player_sprite.angle-90)) * bullet_speed
+            # bullet_sprite.change_x = \
+            #     -math.sin(math.radians(self.player_sprite.angle-90)) \
+            #     * bullet_speed
+            #
+            # bullet_sprite.center_x = self.player_sprite.center_x
+            # bullet_sprite.center_y = self.player_sprite.center_y + 2
+            # bullet_sprite.update()
+            #
+            # self.game_sprite_list.append(bullet_sprite)
+            #
+            # arcade.play_sound(self.laser_sound)
 
         if symbol == arcade.key.LEFT:
             self.player_sprite.change_angle = 3
@@ -873,6 +894,33 @@ class MyGame(arcade.Window):
             self.player_sprite.thrust = 0
         elif symbol == arcade.key.DOWN:
             self.player_sprite.thrust = 0
+        elif symbol == arcade.key.SPACE:
+            self.player_sprite.firing_on = False
+
+    def fire_bullet(self, firing_sprite=SuperSprite()):
+        bullet_sprite = TurningSprite(":resources:images/space_shooter/"
+                                      "laserBlue01.png",
+                                      SCALE)
+        bullet_sprite.guid = "Bullet"
+
+        bullet_sprite.sprite_class = 'Bullet'
+        bullet_sprite.sprite_subclass = 'Player_Bullet'
+        bullet_sprite.originating_source = firing_sprite
+
+        bullet_speed = 13
+        bullet_sprite.change_y = \
+            math.cos(math.radians(firing_sprite.angle - 90)) * bullet_speed
+        bullet_sprite.change_x = \
+            -math.sin(math.radians(firing_sprite.angle - 90)) \
+            * bullet_speed
+
+        bullet_sprite.center_x = firing_sprite.center_x
+        bullet_sprite.center_y = firing_sprite.center_y + 2
+        bullet_sprite.update()
+
+        self.game_sprite_list.append(bullet_sprite)
+
+        arcade.play_sound(self.laser_sound)
 
     def draw_ship_life_list(self):
         for life in self.ship_life_list:
@@ -1041,7 +1089,7 @@ class MyGame(arcade.Window):
                 elif Satellite_sprite.orientation == 2: # right to left
                     Satellite_sprite.center_y = random.randrange(1, SCREEN_HEIGHT) + 0  # size
                     Satellite_sprite.center_x = SCREEN_WIDTH - 100 - max(Satellite_sprite.width, Satellite_sprite.height)
-                    print(f'{Satellite_sprite.center_x}, {Satellite_sprite.center_y}')
+                    #print(f'{Satellite_sprite.center_x}, {Satellite_sprite.center_y}')
                 elif Satellite_sprite.orientation == 3: # top to bottom
                     Satellite_sprite.center_y = max(Satellite_sprite.width, Satellite_sprite.height) + 0  # size
                     Satellite_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(Satellite_sprite.width, Satellite_sprite.height) + SCREEN_WIDTH
@@ -1079,7 +1127,7 @@ class MyGame(arcade.Window):
                 elif enemy_sprite.orientation == 2: # right to left
                     enemy_sprite.center_y = random.randrange(1, SCREEN_HEIGHT) + 0  # size
                     enemy_sprite.center_x = SCREEN_WIDTH - 100 - max(enemy_sprite.width, enemy_sprite.height)
-                    print(f'{enemy_sprite.center_x}, {enemy_sprite.center_y}')
+                  #  print(f'{enemy_sprite.center_x}, {enemy_sprite.center_y}')
                 elif enemy_sprite.orientation == 3: # top to bottom
                     enemy_sprite.center_y = max(enemy_sprite.width, enemy_sprite.height) + 0  # size
                     enemy_sprite.center_x = random.randrange(SCREEN_WIDTH) + 0 #max(enemy_sprite.width, enemy_sprite.height) + SCREEN_WIDTH
@@ -1209,13 +1257,13 @@ class MyGame(arcade.Window):
             shield.center_y = shield.originating_source.center_y
 
     def apply_player_powerup(self, powerup=Powerup()):
-
-        if powerup.sprite_subclass == 'Lifex': # or 1==1:
+        print(powerup.sprite_subclass)
+        if powerup.sprite_subclass == 'Life': # or 1==1:
             self.lives += 1
             self.draw_ship_life_list()
 
-        if powerup.sprite_subclass == 'Shield' or 1 == 1:
-            print(f'Shield powerup! {self.player_sprite.center_x},{self.player_sprite.center_y}')
+        if powerup.sprite_subclass == 'Shield' : # or 1 == 1:
+            # print(f'Shield powerup! {self.player_sprite.center_x},{self.player_sprite.center_y}')
             #self.start_render()
             #mycircle = arcade.draw_circle_outline(center_x = self.player_sprite.center_x, center_y = self.player_sprite.center_y, radius=250, color=(255,255,255))
             shield_sprite = TurningSprite(LIB_BASE_PATH +"Blue_Circle.png",
@@ -1235,6 +1283,10 @@ class MyGame(arcade.Window):
             #arcade.draw_line(self.player_sprite.center_x, CENTER_Y, x, y, arcade.color.OLIVE, 4)
             #self.player_sprite.lives += 1
 
+        if powerup.sprite_subclass == 'Machine_Gun':#  or 1 == 1:
+            self.player_sprite.power_ups.append('Machine_Gun')
+            #print(f'!!!{self.player_sprite.power_ups}')
+
     def on_update(self, x):
         """ Move everything """
         self.frame_count += 1
@@ -1243,6 +1295,12 @@ class MyGame(arcade.Window):
         self.update_satellites()
         self.update_powerups()
         self.update_player_powerups()
+
+        if self.player_sprite.firing_on \
+                and 'Machine_Gun' in self.player_sprite.power_ups\
+                and (datetime.now()-self.player_sprite.last_fire).total_seconds() >=0.1:
+            self.fire_bullet(self.player_sprite)
+            self.player_sprite.last_fire = datetime.now()
 #         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
 #             #random_enemy_draw = True
 #             #print('!RANDOM!')
