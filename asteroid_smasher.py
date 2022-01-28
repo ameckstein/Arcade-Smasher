@@ -712,10 +712,6 @@ class MyGame(arcade.Window):
         # Set up the player
         self.score = 0
         self.player_sprite = None
-        self.max_enemies = 1
-        self.max_satellites = 1
-        self.enemy_generate_rate = 10
-        self.satellite_rate = 10
         #self.lives = 13
 
         # Sounds
@@ -739,18 +735,129 @@ class MyGame(arcade.Window):
         self.hit_list_sprites['Class']['Shield'] = ['Enemy_Ship', 'Player',  'Asteroid', 'Bullet', 'Satellite', 'Shield']
 
         self.round_dict = {
-                            1: {'Astroids': [3,0,0], 'Enemy_Ship_Rate':1, 'Satellite_Rate':1, 'Powerups':[]},
-                            2: {'Astroids': [3,2,0], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            3: {'Astroids': [4,2,1], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            4: {'Astroids': [4,5,3], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            5: {'Astroids': [5,3,3], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            6: {'Astroids': [5,5,4], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            7: {'Astroids': [6,3,2], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            8: {'Astroids': [6,6,5], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                            9: {'Astroids': [7,7,5], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-                           10: {'Astroids': [7,8,6], 'Enemy_Ship_Rate': 2, 'Satellite_Rate': 2, 'Powerups': []},
-
+                            1: {'Astroids': [3,0,0], 'Enemy_Ship_Rate': 5, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate':  5,
+                                'Max_Enemies': 1, 'Max_Satellites':  1, 'Powerups':[]},
+                            2: {'Astroids': [3,2,0], 'Enemy_Ship_Rate': 10, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 10,
+                                'Max_Enemies': 1, 'Max_Satellites': 1, 'Powerups': []},
+                            3: {'Astroids': [4,2,1], 'Enemy_Ship_Rate': 15, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 15,
+                                'Max_Enemies': 1, 'Max_Satellites': 1, 'Powerups': []},
+                            4: {'Astroids': [4,5,3], 'Enemy_Ship_Rate': 20, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 20,
+                                'Max_Enemies': 1, 'Max_Satellites': 1, 'Powerups': []},
+                            5: {'Astroids': [5,3,3], 'Enemy_Ship_Rate': 25, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 25,
+                                'Max_Enemies': 1, 'Max_Satellites': 1, 'Powerups': []},
+                            6: {'Astroids': [5,5,4], 'Enemy_Ship_Rate': 30, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 30,
+                                'Max_Enemies': 2, 'Max_Satellites': 1, 'Powerups': []},
+                            7: {'Astroids': [6,3,2], 'Enemy_Ship_Rate': 35, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 35,
+                                'Max_Enemies': 2, 'Max_Satellites': 1, 'Powerups': []},
+                            8: {'Astroids': [6,6,5], 'Enemy_Ship_Rate': 40, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 40,
+                                'Max_Enemies': 2, 'Max_Satellites': 1, 'Powerups': []},
+                            9: {'Astroids': [7,7,5], 'Enemy_Ship_Rate': 45, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 45,
+                                'Max_Enemies': 2, 'Max_Satellites': 1, 'Powerups': []},
+                           10: {'Astroids': [7,8,6], 'Enemy_Ship_Rate': 50, 'Enemy_Fire_Rate': 1.0, 'Satellite_Rate': 50,
+                                'Max_Enemies': 3, 'Max_Satellites': 2, 'Powerups': []}
+                    }
+        self.round = 1
+        # self.max_enemies = self.round_dict[self.round]['Max_Enemies']
+        # self.max_satellites = self.round_dict[self.round]['Max_Satellites']
+        # self.enemy_generate_rate = self.round_dict[self.round]['Enemy_Ship_Rate']
+        # self.satellite_rate = self.round_dict[self.round]['Satellite_Rate']
+        # self.astroids=self.round_dict[self.round]['Astroids']
+        #
+        self.resource_lib_dict = {
+            'Images':
+                {
+                    'Large_Meteor':
+                    {'Image_List':
+                        [":resources:images/space_shooter/meteorGrey_big1.png",
+                         ":resources:images/space_shooter/meteorGrey_big2.png",
+                         ":resources:images/space_shooter/meteorGrey_big3.png",
+                         ":resources:images/space_shooter/meteorGrey_big4.png"],
+                     'Scale': 0.5
+                    },
+                    'Medium_Meteor':
+                    {'Image_List':
+                    [":resources:images/space_shooter/meteorGrey_med1.png",
+                     ":resources:images/space_shooter/meteorGrey_med2.png"],
+                     'Scale': 0.5
+                    },
+                    'Small_Meteor':
+                    {'Image_List':
+                    [":resources:images/space_shooter/meteorGrey_small1.png",
+                     ":resources:images/space_shooter/meteorGrey_small2.png"],
+                     'Scale': 0.5
+                    }
+                }
         }
+    def start_new_round(self, round=0):
+        #clear game prite list
+
+        if round <= 0:
+            self.round += 1
+            print('!', round)
+        else:
+            self.round = round
+            print('?', round)
+        print(self.round)
+        self.clear_game_sprites()
+
+
+        for i in range(self.round_dict[self.round]['Astroids'][0]):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Large_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][image_no]
+                                          , self.resource_lib_dict['Images']['Large_Meteor']['Scale'])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
+            enemy_sprite.center_x = random.randrange(LEFT_LIMIT, RIGHT_LIMIT)
+
+            enemy_sprite.change_x = random.random() * 2 - 1
+            enemy_sprite.change_y = random.random() * 2 - 1
+
+            enemy_sprite.change_angle = (random.random() - 0.5) * 2
+            enemy_sprite.size = 4
+            self.game_sprite_list.append(enemy_sprite)
+
+        for i in range(self.round_dict[self.round]['Astroids'][1]):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no]
+                                          , self.resource_lib_dict['Images']['Medium_Meteor']['Scale'])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
+            enemy_sprite.center_x = random.randrange(LEFT_LIMIT, RIGHT_LIMIT)
+
+            enemy_sprite.change_x = random.random() * 2 - 1
+            enemy_sprite.change_y = random.random() * 2 - 1
+
+            enemy_sprite.change_angle = (random.random() - 0.5) * 2
+            enemy_sprite.size = 4
+            self.game_sprite_list.append(enemy_sprite)
+
+        for i in range(self.round_dict[self.round]['Astroids'][2]):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Small_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no]
+                                          , self.resource_lib_dict['Images']['Small_Meteor']['Scale'])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
+            enemy_sprite.center_x = random.randrange(LEFT_LIMIT, RIGHT_LIMIT)
+
+            enemy_sprite.change_x = random.random() * 2 - 1
+            enemy_sprite.change_y = random.random() * 2 - 1
+
+            enemy_sprite.change_angle = (random.random() - 0.5) * 2
+            enemy_sprite.size = 4
+            self.game_sprite_list.append(enemy_sprite)
+
+    def clear_game_sprites(self):
+
+        for sprite in self.game_sprite_list:
+            if sprite.sprite_class != 'Player':
+                sprite_index = self.game_sprite_list.index(sprite)
+                self.game_sprite_list.pop(sprite_index)
+
+
+
 
     def start_new_game(self):
         """ Set up the game and initialize the variables. """
@@ -786,25 +893,27 @@ class MyGame(arcade.Window):
             cur_pos += life.width
             self.ship_life_list.append(life)
 
-        # Make the asteroids
-        image_list = (":resources:images/space_shooter/meteorGrey_big1.png",
-                      ":resources:images/space_shooter/meteorGrey_big2.png",
-                      ":resources:images/space_shooter/meteorGrey_big3.png",
-                      ":resources:images/space_shooter/meteorGrey_big4.png")
-        for i in range(STARTING_ASTEROID_COUNT):
-            image_no = random.randrange(4)
-            enemy_sprite = AsteroidSprite(image_list[image_no], SCALE)
-            enemy_sprite.guid = "Asteroid"
+        self.start_new_round()
 
-            enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
-            enemy_sprite.center_x = random.randrange(LEFT_LIMIT, RIGHT_LIMIT)
-
-            enemy_sprite.change_x = random.random() * 2 - 1
-            enemy_sprite.change_y = random.random() * 2 - 1
-
-            enemy_sprite.change_angle = (random.random() - 0.5) * 2
-            enemy_sprite.size = 4
-            self.game_sprite_list.append(enemy_sprite)
+        # # Make the asteroids
+        # image_list = (":resources:images/space_shooter/meteorGrey_big1.png",
+        #               ":resources:images/space_shooter/meteorGrey_big2.png",
+        #               ":resources:images/space_shooter/meteorGrey_big3.png",
+        #               ":resources:images/space_shooter/meteorGrey_big4.png")
+        # for i in range(STARTING_ASTEROID_COUNT):
+        #     image_no = random.randrange(4)
+        #     enemy_sprite = AsteroidSprite(image_list[image_no], SCALE)
+        #     enemy_sprite.guid = "Asteroid"
+        #
+        #     enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
+        #     enemy_sprite.center_x = random.randrange(LEFT_LIMIT, RIGHT_LIMIT)
+        #
+        #     enemy_sprite.change_x = random.random() * 2 - 1
+        #     enemy_sprite.change_y = random.random() * 2 - 1
+        #
+        #     enemy_sprite.change_angle = (random.random() - 0.5) * 2
+        #     enemy_sprite.size = 4
+        #     self.game_sprite_list.append(enemy_sprite)
 
     def on_draw(self):
         """
@@ -1073,8 +1182,8 @@ class MyGame(arcade.Window):
     def update_satellites(self):
 
         # random generation of enemies
-        if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Satellite')) < self.max_satellites:
-            if random.randint(1, 1000)  <= self.satellite_rate:
+        if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Satellite')) < self.round_dict[self.round]['Max_Satellites']:
+            if random.randint(1, 1000)  <= self.round_dict[self.round]['Satellite_Rate']:
                 Satellite_sprite = Satellite(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
 
                 size = max(Satellite_sprite.width, Satellite_sprite.height)
@@ -1111,8 +1220,8 @@ class MyGame(arcade.Window):
     def update_enemies(self):
 
         # random generation of enemies
-        if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship')) < self.max_enemies:
-            if random.randint(1, 1000)  <= self.enemy_generate_rate:
+        if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship')) < self.round_dict[self.round]['Max_Enemies']:
+            if random.randint(1, 1000)  <= self.round_dict[self.round]['Enemy_Ship_Rate']:
                 enemy_sprite = EnemyShip(scale=SCALE * 1.5, image_file_name=LIB_BASE_PATH + "enemy_A.png")
 
                 size = max(enemy_sprite.width, enemy_sprite.height)
@@ -1353,6 +1462,9 @@ class MyGame(arcade.Window):
             # self.enemy_ship_list.update()
 
             # collision_list = self.asteroid_list + self.enemy_ship_list
+
+            if len(self.game_sprite_list.ListSubsetSprite(sprite_class='Asteroid')) == 0:
+                self.start_new_round()
 
             for enemy_ship in self.game_sprite_list.ListSubsetSprite(sprite_class='Enemy_Ship'):
                 #print(enemy_ship.center_x, enemy_ship.center_y )
