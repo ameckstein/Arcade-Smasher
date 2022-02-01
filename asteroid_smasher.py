@@ -768,26 +768,33 @@ class MyGame(arcade.Window):
                 {
                     'Large_Meteor':
                     {'Image_List':
-                        [":resources:images/space_shooter/meteorGrey_big1.png",
-                         ":resources:images/space_shooter/meteorGrey_big2.png",
-                         ":resources:images/space_shooter/meteorGrey_big3.png",
-                         ":resources:images/space_shooter/meteorGrey_big4.png"],
-                     'Scale': 0.5
+                        [[":resources:images/space_shooter/meteorGrey_big1.png",0.5],
+                         [":resources:images/space_shooter/meteorGrey_big2.png",0.5],
+                         [":resources:images/space_shooter/meteorGrey_big3.png",0.5],
+                         [":resources:images/space_shooter/meteorGrey_big4.png",0.5],
+                         [LIB_BASE_PATH + "meteor_detailedLarge.png",0.5],
+                         [LIB_BASE_PATH + "meteor_squareDetailedLarge.png",0.5]]
                     },
                     'Medium_Meteor':
                     {'Image_List':
-                    [":resources:images/space_shooter/meteorGrey_med1.png",
-                     ":resources:images/space_shooter/meteorGrey_med2.png"],
-                     'Scale': 0.5
+                    [[":resources:images/space_shooter/meteorGrey_med1.png",0.5],
+                     [":resources:images/space_shooter/meteorGrey_med2.png",0.5]]
                     },
                     'Small_Meteor':
                     {'Image_List':
-                    [":resources:images/space_shooter/meteorGrey_small1.png",
-                     ":resources:images/space_shooter/meteorGrey_small2.png"],
-                     'Scale': 0.5
+                    [[":resources:images/space_shooter/meteorGrey_small1.png",0.5],
+                     [":resources:images/space_shooter/meteorGrey_small2.png",0.5],
+                      [LIB_BASE_PATH + "meteor_squareSmall.png",0.5],
+                      [LIB_BASE_PATH + "meteor_squareDetailedSmall.png",0.5]]
+                    },
+                    'Tiny_Meteor':
+                    {'Image_List':
+                    [[":resources:images/space_shooter/meteorGrey_tiny1.png",0.5],
+                             [":resources:images/space_shooter/meteorGrey_tiny2.png",0.5]]
                     }
                 }
         }
+
     def start_new_round(self, round=0):
         #clear game prite list
 
@@ -803,8 +810,9 @@ class MyGame(arcade.Window):
 
         for i in range(self.round_dict[self.round]['Astroids'][0]):
             image_no = random.randrange(len(self.resource_lib_dict['Images']['Large_Meteor']['Image_List']))
-            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][image_no]
-                                          , self.resource_lib_dict['Images']['Large_Meteor']['Scale'])
+            print(self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][1])
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Large_Meteor']['Image_List'] [image_no][1])
             enemy_sprite.guid = "Asteroid"
 
             enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
@@ -818,9 +826,9 @@ class MyGame(arcade.Window):
             self.game_sprite_list.append(enemy_sprite)
 
         for i in range(self.round_dict[self.round]['Astroids'][1]):
-            image_no = random.randrange(len(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List']))
-            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no]
-                                          , self.resource_lib_dict['Images']['Medium_Meteor']['Scale'])
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][0]))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][1])
             enemy_sprite.guid = "Asteroid"
 
             enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
@@ -835,8 +843,8 @@ class MyGame(arcade.Window):
 
         for i in range(self.round_dict[self.round]['Astroids'][2]):
             image_no = random.randrange(len(self.resource_lib_dict['Images']['Small_Meteor']['Image_List']))
-            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no]
-                                          , self.resource_lib_dict['Images']['Small_Meteor']['Scale'])
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][1])
             enemy_sprite.guid = "Asteroid"
 
             enemy_sprite.center_y = random.randrange(BOTTOM_LIMIT, TOP_LIMIT)
@@ -1056,12 +1064,10 @@ class MyGame(arcade.Window):
 
         if asteroid.size == 4:
             for i in range(3):
-                image_no = random.randrange(2)
-                image_list = [":resources:images/space_shooter/meteorGrey_med1.png",
-                              ":resources:images/space_shooter/meteorGrey_med2.png"]
-
-                enemy_sprite = AsteroidSprite(image_list[image_no],
-                                              SCALE * 1.5)
+                image_no = random.randrange(len(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List']))
+                enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][0]
+                                            , self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][1])
+                enemy_sprite.guid = "Asteroid"
 
                 random_x_factor = random.randrange(-50, 50, 1)
                 random_y_factor = random.randrange(-50, 50, 1)
@@ -1079,12 +1085,10 @@ class MyGame(arcade.Window):
 
         elif asteroid.size == 3:
             for i in range(3):
-                image_no = random.randrange(2)
-                image_list = [":resources:images/space_shooter/meteorGrey_small1.png",
-                              ":resources:images/space_shooter/meteorGrey_small2.png"]
-
-                enemy_sprite = AsteroidSprite(image_list[image_no],
-                                              SCALE * 1.5)
+                image_no = random.randrange(len(self.resource_lib_dict['Images']['Small_Meteor']['Image_List']))
+                enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][0]
+                                              , self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][1])
+                enemy_sprite.guid = "Asteroid"
 
                 random_x_factor = random.randrange(-50, 50, 1)
                 random_y_factor = random.randrange(-50, 50, 1)
@@ -1102,12 +1106,10 @@ class MyGame(arcade.Window):
 
         elif asteroid.size == 2:
             for i in range(3):
-                image_no = random.randrange(2)
-                image_list = [":resources:images/space_shooter/meteorGrey_tiny1.png",
-                              ":resources:images/space_shooter/meteorGrey_tiny2.png"]
-
-                enemy_sprite = AsteroidSprite(image_list[image_no],
-                                              SCALE * 1.5)
+                image_no = random.randrange(len(self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List']))
+                enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List'][image_no][0]
+                                              , self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List'][image_no][1])
+                enemy_sprite.guid = "Asteroid"
 
                 random_x_factor = random.randrange(-50, 50, 1)
                 random_y_factor = random.randrange(-50, 50, 1)
