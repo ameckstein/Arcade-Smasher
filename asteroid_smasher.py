@@ -178,12 +178,14 @@ class SuperSpriteList(arcade.SpriteList):
 
         return sprite_count
 
-    def ListSubsetSprite(self, sprite_class: str):
+    def ListSubsetSprite(self, sprite_class: str, visible: bool = True):
 
         list_subset = []#SuperSpriteList()
 
         for sprite in self:
-            if sprite.sprite_class == sprite_class:
+            if not sprite_class and sprite.visible == visible:
+                list_subset.append(sprite)
+            elif sprite.sprite_class == sprite_class and sprite.visible == visible:
                 list_subset.append(sprite)
 
         return list_subset
@@ -367,7 +369,7 @@ class ShipSprite(SuperSprite):
 class EnemyShip(SuperSprite):
     """ Sprite that represents an enemy ship. """
 
-    def __init__(self, image_file_name=str(), scale=float(), character=str() ):
+    def __init__(self, image_file_name:str() = LIB_BASE_PATH + "enemy_A.png", scale=float(), character=str() ):
         super().__init__(image_file_name, scale=scale)
 
         self.size = 0
@@ -384,46 +386,50 @@ class EnemyShip(SuperSprite):
         self.media_player = None
         self.sprite_class = 'Enemy_Ship'
         self.sprite_subclass = None
+        self.character = character
 
         self.enemy_dict = {
-                                 'Barry': {'Hunt_Type': 'Player', 'Max_Shoot_Speed': 6, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_A.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_000.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Larry': {'Hunt_Type': 'All', 'Max_Shoot_Speed': 15, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "enemy_B.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(98,255,0), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Marry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 5, 'Preservation': 5, 'Accuracy': 6, 'Image_File': LIB_BASE_PATH + "enemy_C.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(255,0,98), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Harry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 6, 'Preservation': 6, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_D.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_003.ogg", 'Image_Offset': 0, 'Color':(255,0,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Garry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 4, 'Min_Shoot_Speed': 3, 'Intelligence': 4, 'Preservation': 4, 'Accuracy': 9, 'Image_File': LIB_BASE_PATH + "enemy_E.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(0,128,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75},
-                                 'Fred': {'Hunt_Type': 'Random', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 1, 'Intelligence': 0, 'Preservation': 0, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "ship_sidesB.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(3, 252, 252), 'Power_ups': ['All'], 'Powerup_freq': 0.75}
+                                 'Barry': {'Hunt_Type': 'Player', 'Max_Shoot_Speed': 6, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_A.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_000.ogg", 'Image_Offset': 0, 'Color':(255,255,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'},
+                                 'Larry': {'Hunt_Type': 'All', 'Max_Shoot_Speed': 15, 'Min_Shoot_Speed': 3, 'Intelligence': 3, 'Preservation': 3, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "enemy_B.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(98,255,0), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'},
+                                 'Marry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 5, 'Preservation': 5, 'Accuracy': 6, 'Image_File': LIB_BASE_PATH + "enemy_C.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(255,0,98), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'},
+                                 'Harry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 3, 'Intelligence': 6, 'Preservation': 6, 'Accuracy': 8, 'Image_File': LIB_BASE_PATH + "enemy_D.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_003.ogg", 'Image_Offset': 0, 'Color':(255,0,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'},
+                                 'Garry': {'Hunt_Type': 'Asteroid', 'Max_Shoot_Speed': 4, 'Min_Shoot_Speed': 3, 'Intelligence': 4, 'Preservation': 4, 'Accuracy': 9, 'Image_File': LIB_BASE_PATH + "enemy_E.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_002.ogg", 'Image_Offset': 0, 'Color':(0,128,255), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'},
+                                 'Fred': {'Hunt_Type': 'Random', 'Max_Shoot_Speed': 3, 'Min_Shoot_Speed': 1, 'Intelligence': 0, 'Preservation': 0, 'Accuracy': 10, 'Image_File': LIB_BASE_PATH + "ship_sidesB.png", 'Sound_File': LIB_BASE_PATH + "spaceEngine_001.ogg", 'Image_Offset': 0, 'Color':(3, 252, 252), 'Power_ups': ['All'], 'Powerup_freq': 0.75, 'Laser_Color': 'Purple'}
                           }
         #print(self.enemy_dict)
 
         range_count = 0
         #print(len(self.enemy_dict))
-        if not character:
+        if not self.character:
             rand_char = random.randrange(start=1,stop=len(self.enemy_dict))
             for char in self.enemy_dict:
                 if range_count==rand_char:
                     self.sprite_subclass = char
+                    self.character = char
                     break
                 range_count+=1
 
         # print(LIB_BASE_PATH + "enemy_C.png")
         # print(self.enemy_dict[char]['Image_File'])
         #self.sprite_subclass = char
-        self.hunt_type = self.enemy_dict[char]['Hunt_Type']
-        self.max_shoot_speed = self.enemy_dict[char]['Max_Shoot_Speed']
-        self.min_shoot_speed = self.enemy_dict[char]['Min_Shoot_Speed']
-        self.intelligence = self.enemy_dict[char]['Intelligence']
-        self.preservation = self.enemy_dict[char]['Preservation']
-        self.accuracy = self.enemy_dict[char]['Accuracy']
-        self.texture = arcade.load_texture(file_name=self.enemy_dict[char]['Image_File'], hit_box_algorithm='Detailed')
-        self.sound = arcade.Sound(file_name=self.enemy_dict[char]['Sound_File'], streaming=False) #self.enemy_dict[char]['Sound_File']
-        self.image_offset = self.enemy_dict[char]['Image_Offset']
-        self.color = self.enemy_dict[char]['Color']
-        self.power_ups = self.enemy_dict[char]['Power_ups']
-        self.powerup_freq = self.enemy_dict[char]['Powerup_freq']
+        self.hunt_type = self.enemy_dict[self.character]['Hunt_Type']
+        self.max_shoot_speed = self.enemy_dict[self.character]['Max_Shoot_Speed']
+        self.min_shoot_speed = self.enemy_dict[self.character]['Min_Shoot_Speed']
+        self.intelligence = self.enemy_dict[self.character]['Intelligence']
+        self.preservation = self.enemy_dict[self.character]['Preservation']
+        self.accuracy = self.enemy_dict[self.character]['Accuracy']
+        self.texture = arcade.load_texture(file_name=self.enemy_dict[self.character]['Image_File'], hit_box_algorithm='Detailed')
+        self.sound = arcade.Sound(file_name=self.enemy_dict[self.character]['Sound_File'], streaming=False) #self.enemy_dict[char]['Sound_File']
+        self.image_offset = self.enemy_dict[self.character]['Image_Offset']
+        self.color = self.enemy_dict[self.character]['Color']
+        self.power_ups = self.enemy_dict[self.character]['Power_ups']
+        self.powerup_freq = self.enemy_dict[self.character]['Powerup_freq']
         # print(self.enemy_dict)
         print(self.sprite_subclass)
 
         self.playsound()
+
+    #add disable method to keep from moving, play sound, or shooting
 
     def playsound(self):
         self.media_player = self.sound.play(loop=True)
@@ -671,15 +677,16 @@ class AsteroidSprite(SuperSprite):
 
     def update(self):
         """ Move the asteroid around. """
-        super().update()
-        if self.center_x < LEFT_LIMIT:
-            self.center_x = RIGHT_LIMIT
-        if self.center_x > RIGHT_LIMIT:
-            self.center_x = LEFT_LIMIT
-        if self.center_y > TOP_LIMIT:
-            self.center_y = BOTTOM_LIMIT
-        if self.center_y < BOTTOM_LIMIT:
-            self.center_y = TOP_LIMIT
+        if self.visible:
+            super().update()
+            if self.center_x < LEFT_LIMIT:
+                self.center_x = RIGHT_LIMIT
+            if self.center_x > RIGHT_LIMIT:
+                self.center_x = LEFT_LIMIT
+            if self.center_y > TOP_LIMIT:
+                self.center_y = BOTTOM_LIMIT
+            if self.center_y < BOTTOM_LIMIT:
+                self.center_y = TOP_LIMIT
 
 
 class MyGame(arcade.Window):
@@ -791,7 +798,10 @@ class MyGame(arcade.Window):
                     {'Image_List':
                     [[":resources:images/space_shooter/meteorGrey_tiny1.png",0.5],
                              [":resources:images/space_shooter/meteorGrey_tiny2.png",0.5]]
-                    }
+                    },
+                    'bullet':
+                        {'Blue':[[":resources:images/space_shooter/laserBlue01.png", 0.75]],
+                        'Purple': [[LIB_BASE_PATH + "Purple_laser2_H.png", 0.25]]}
                 }
         }
 
@@ -864,6 +874,105 @@ class MyGame(arcade.Window):
                 sprite_index = self.game_sprite_list.index(sprite)
                 self.game_sprite_list.pop(sprite_index)
 
+    def predraw_sprites(self):
+
+        place_x_cord = arcade.window_commands.get_display_size()[0] + 50
+        place_y_cord = arcade.window_commands.get_display_size()[0] + 50
+
+
+        for i in range(self.round_dict[self.round]['Astroids'][0]):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Large_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Large_Meteor']['Image_List'][image_no][1])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = place_y_cord
+            enemy_sprite.center_x = place_x_cord
+            place_x_cord = enemy_sprite.right + 50
+
+            enemy_sprite.size = 4
+            enemy_sprite.visible = False
+            self.game_sprite_list.append(enemy_sprite)
+
+        sprite_count = 3
+        sprite_count = (self.round_dict[self.round]['Astroids'][0] * 3) + self.round_dict[self.round]['Astroids'][1]
+
+        for i in range(sprite_count):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][0]))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][0]
+                                          ,self.resource_lib_dict['Images']['Medium_Meteor']['Image_List'][image_no][1])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = place_y_cord
+            enemy_sprite.center_x = place_x_cord
+            place_x_cord = enemy_sprite.right + 50
+
+            enemy_sprite.size = 3
+            enemy_sprite.visible = False
+            self.game_sprite_list.append(enemy_sprite)
+
+        sprite_count = (self.round_dict[self.round]['Astroids'][0] * 3 * 3) + \
+                       (self.round_dict[self.round]['Astroids'][1]  * 3) + \
+                       (self.round_dict[self.round]['Astroids'][2] )
+
+        for i in range(sprite_count):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Small_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Small_Meteor']['Image_List'][image_no][1])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = place_y_cord
+            enemy_sprite.center_x = place_x_cord
+            place_x_cord = enemy_sprite.right + 50
+
+            enemy_sprite.size = 2
+            enemy_sprite.visible = False
+            self.game_sprite_list.append(enemy_sprite)
+
+        sprite_count = (self.round_dict[self.round]['Astroids'][0] * 3 * 3 * 3) + \
+                       (self.round_dict[self.round]['Astroids'][1]  * 3 * 3) + \
+                       (self.round_dict[self.round]['Astroids'][2] * 3)
+
+        for i in range(sprite_count):
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List']))
+            enemy_sprite = AsteroidSprite(self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List'][image_no][0]
+                                          , self.resource_lib_dict['Images']['Tiny_Meteor']['Image_List'][image_no][1])
+            enemy_sprite.guid = "Asteroid"
+
+            enemy_sprite.center_y = place_y_cord
+            enemy_sprite.center_x = place_x_cord
+            place_x_cord = enemy_sprite.right + 50
+
+            enemy_sprite.size = 2
+            enemy_sprite.visible = False
+            self.game_sprite_list.append(enemy_sprite)
+
+        #satalite_Sprite = sat
+        sprite_count = self.round_dict[self.round]['Max_Enemies']
+
+        enemy_sprite = EnemyShip()
+        enemy_dict = enemy_sprite.enemy_dict
+        enemy_sprite.kill()
+
+        for i in range(self.round_dict[self.round]['Max_Enemies']):
+            for x in enemy_dict:
+                enemy_sprite = EnemyShip(character=x)
+                enemy_sprite.center_y = place_y_cord
+                enemy_sprite.center_x = place_x_cord
+                place_x_cord = enemy_sprite.right + 50
+                enemy_sprite.visible = False
+                self.game_sprite_list.append(enemy_sprite)
+
+        #enemy_dict
+        print(len(self.game_sprite_list))
+        # for i in range(1,50):
+        #     image_no = random.randrange(len(self.resource_lib_dict['Images']['bullet']['Blue']))
+        #     bullet_sprite = TurningSprite(self.resource_lib_dict['Images']['bullet']['Blue'][image_no][0]
+        #                                   , self.resource_lib_dict['Images']['bullet']['Blue'][image_no][1])
+        #     bullet_sprite.guid = "Bullet"
+        #     self.game_sprite_list_waiting_room.append()
+        #
+        #     self.round_dict
 
 
 
@@ -873,8 +982,10 @@ class MyGame(arcade.Window):
         self.frame_count = 0
         self.game_over = False
 
+
         # Sprite lists
         self.game_sprite_list = SuperSpriteList(use_spatial_hash=True)
+        self.game_sprite_list_waiting_room = SuperSpriteList(use_spatial_hash=False)
         # self.player_sprite_list = arcade.SpriteList(use_spatial_hash=True)
         # self.asteroid_list = arcade.SpriteList(use_spatial_hash=True)
         # self.bullet_list = arcade.SpriteList(use_spatial_hash=True)
@@ -901,6 +1012,7 @@ class MyGame(arcade.Window):
             cur_pos += life.width
             self.ship_life_list.append(life)
 
+        self.predraw_sprites()
         self.start_new_round()
 
         # # Make the asteroids
@@ -965,7 +1077,7 @@ class MyGame(arcade.Window):
         """ Called whenever a key is pressed. """
         # Shoot if the player hit the space bar and we aren't respawning.
         if not self.player_sprite.respawning and symbol == arcade.key.SPACE:
-            self.fire_bullet(firing_sprite=self.player_sprite)
+            self.fire_bullet(firing_sprite=self.player_sprite, fire_angles=[self.player_sprite.angle])#, self.player_sprite.angle-180 ])
             self.player_sprite.firing_on = True
 
             # bullet_sprite = TurningSprite(":resources:images/space_shooter/"
@@ -1014,28 +1126,33 @@ class MyGame(arcade.Window):
         elif symbol == arcade.key.SPACE:
             self.player_sprite.firing_on = False
 
-    def fire_bullet(self, firing_sprite=SuperSprite()):
-        bullet_sprite = TurningSprite(":resources:images/space_shooter/"
-                                      "laserBlue01.png",
-                                      SCALE)
-        bullet_sprite.guid = "Bullet"
+    def fire_bullet(self, firing_sprite=SuperSprite(),fire_angles: []=[], fire_speed: float=15, laser_Color: str() ='Blue'):
+        if len(fire_angles) == 0:
+            fire_angles.append(firing_sprite.angle)
+        print(fire_angles)
 
-        bullet_sprite.sprite_class = 'Bullet'
-        bullet_sprite.sprite_subclass = 'Player_Bullet'
-        bullet_sprite.originating_source = firing_sprite
+        for fire_angle in fire_angles:
+            image_no = random.randrange(len(self.resource_lib_dict['Images']['bullet'][laser_Color]))
+            bullet_sprite = TurningSprite(self.resource_lib_dict['Images']['bullet'][laser_Color][image_no][0]
+                                          , self.resource_lib_dict['Images']['bullet'][laser_Color][image_no][1]*SCALE)
+            bullet_sprite.guid = "Bullet"
 
-        bullet_speed = 13
-        bullet_sprite.change_y = \
-            math.cos(math.radians(firing_sprite.angle - 90)) * bullet_speed
-        bullet_sprite.change_x = \
-            -math.sin(math.radians(firing_sprite.angle - 90)) \
-            * bullet_speed
+            bullet_sprite.sprite_class = 'Bullet'
+            bullet_sprite.sprite_subclass = firing_sprite.sprite_class + '_Bullet'  #'Player_Bullet'
+            bullet_sprite.originating_source = firing_sprite
 
-        bullet_sprite.center_x = firing_sprite.center_x
-        bullet_sprite.center_y = firing_sprite.center_y + 2
-        bullet_sprite.update()
+            #bullet_speed = 13
+            bullet_sprite.change_y = \
+                math.cos(math.radians(fire_angle - 90)) * fire_speed
+            bullet_sprite.change_x = \
+                -math.sin(math.radians(fire_angle - 90)) \
+                * fire_speed
 
-        self.game_sprite_list.append(bullet_sprite)
+            bullet_sprite.center_x = firing_sprite.center_x
+            bullet_sprite.center_y = firing_sprite.center_y + 2
+            bullet_sprite.update()
+
+            self.game_sprite_list.append(bullet_sprite)
 
         arcade.play_sound(self.laser_sound)
 
@@ -1136,32 +1253,33 @@ class MyGame(arcade.Window):
             #total_seconds = difference.total_seconds()
 
             if  sec_since_last_fire >= fire_frequency: #len(self.enemy_ship_list) > 0 and
-                bullet_sprite = TurningSprite(LIB_BASE_PATH +
-                                              "Blue_Laser2_H.png",
-                                              SCALE*.25)
-
-                bullet_sprite.sprite_class = 'Bullet'
-                bullet_sprite.sprite_subclass = 'Enemy_Bullet'
-                bullet_sprite.originating_source = enemy
-
-                #bullet_sprite.angle = 45
-                bullet_sprite.guid = "Enemy_Bullet"
-                #print(bullet_sprite.guid)
-                bullet_speed = fire_speed
-                bullet_sprite.change_y = \
-                    math.cos(math.radians(fire_angle)) * bullet_speed
-                bullet_sprite.change_x = \
-                    -math.sin(math.radians(fire_angle)) \
-                    * bullet_speed
-
-                bullet_sprite.center_x = enemy.center_x #+ enemy.size  # self.player_sprite.center_x
-                bullet_sprite.center_y =    enemy.center_y #top #+ 1  # self.enemy_ship_list[0].center_y + self.enemy_ship_list[0].size
-                #print(f'{bullet_sprite.center_x}, {bullet_sprite.center_y}')
-                bullet_sprite.update()
-
-                self.game_sprite_list.append(bullet_sprite)
-
-                arcade.play_sound(self.laser_sound)
+                self.fire_bullet(firing_sprite=enemy, fire_angles=[fire_angle],fire_speed=fire_speed, laser_Color='Purple')
+                # bullet_sprite = TurningSprite(LIB_BASE_PATH +
+                #                               "Blue_Laser2_H.png",
+                #                               SCALE*.25)
+                #
+                # bullet_sprite.sprite_class = 'Bullet'
+                # bullet_sprite.sprite_subclass = 'Enemy_Bullet'
+                # bullet_sprite.originating_source = enemy
+                #
+                # #bullet_sprite.angle = 45
+                # bullet_sprite.guid = "Enemy_Bullet"
+                # #print(bullet_sprite.guid)
+                # bullet_speed = fire_speed
+                # bullet_sprite.change_y = \
+                #     math.cos(math.radians(fire_angle)) * bullet_speed
+                # bullet_sprite.change_x = \
+                #     -math.sin(math.radians(fire_angle)) \
+                #     * bullet_speed
+                #
+                # bullet_sprite.center_x = enemy.center_x #+ enemy.size  # self.player_sprite.center_x
+                # bullet_sprite.center_y =    enemy.center_y #top #+ 1  # self.enemy_ship_list[0].center_y + self.enemy_ship_list[0].size
+                # #print(f'{bullet_sprite.center_x}, {bullet_sprite.center_y}')
+                # bullet_sprite.update()
+                #
+                # self.game_sprite_list.append(bullet_sprite)
+                #
+                # arcade.play_sound(self.laser_sound)
                 enemy.last_fire = datetime.now()
                 #print('enemy Fire')
 
@@ -1180,7 +1298,6 @@ class MyGame(arcade.Window):
 
             powerup.update()
 
-#satellite_rate
     def update_satellites(self):
 
         # random generation of enemies
@@ -1410,7 +1527,7 @@ class MyGame(arcade.Window):
         if self.player_sprite.firing_on \
                 and 'Machine_Gun' in self.player_sprite.power_ups\
                 and (datetime.now()-self.player_sprite.last_fire).total_seconds() >=0.1:
-            self.fire_bullet(self.player_sprite)
+            self.fire_bullet(firing_sprite=self.player_sprite, fire_angles=[self.player_sprite.angle])
             self.player_sprite.last_fire = datetime.now()
 #         if random.randint(1, 100) == 100 and self.game_sprite_list.ListLenGetSprite(sprite_class='Enemy_Ship') == 0:
 #             #random_enemy_draw = True
